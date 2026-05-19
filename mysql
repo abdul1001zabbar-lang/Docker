@@ -1,0 +1,39 @@
+docker pull mysql:latest
+
+
+docker run -d \
+--name mysqlcontainer \
+-e MYSQL_ROOT_PASSWORD=root123 \
+-p 3306:3306 \
+mysql:latest
+
+
+#docker exec -it mysqlcontainer bash
+
+
+#Login
+#mysql -u root -p
+
+#password
+#root123
+
+
+SHOW DATABASES;
+
+CREATE DATABASE company;
+
+USE company;
+
+CREATE TABLE employees (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50),
+    role VARCHAR(50)
+);
+
+INSERT INTO employees(name, role)
+VALUES ("Abdul", "DevOps Engineer");
+
+SELECT * FROM employees;
+
+exit
+

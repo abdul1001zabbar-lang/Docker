@@ -1,11 +1,11 @@
-FROM ubuntu:latest
+FROM python:3.10
 
 WORKDIR /app
 
 COPY . .
 
-RUN apt-get update && apt-get install -y python3 python3-pip
+CMD ["python","app.py"]
 
-ENV NAME World
 
-CMD ["python3","app.py"]
+#docker build -t my-python-app .
+#docker run --name pythoncontainer my-python-app
