@@ -1,0 +1,86 @@
+mkdir python-app
+
+cd python-app
+
+cat > app.py <<EOF
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "Hello Abdul from Docker Python"
+
+app.run(host="0.0.0.0", port=5000)
+EOF
+
+cat > requirements.txt <<EOF
+flask
+EOF
+
+cat > Dockerfile <<EOF
+FROM python:3.10
+
+WORKDIR /app
+
+COPY . .
+
+RUN pip install -r requirements.txt
+
+CMD ["python","app.py"]
+EOF
+
+docker build -t mypythonapp .
+
+docker volume create python-data
+
+docker run -d \
+--name python-container \
+-p 5000:5000 \
+-v python-data:/app \
+mypythonapp
+
+
+===============================
+
+mkdir python-app
+
+cd python-app
+
+cat > app.py <<EOF
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "Hello Abdul from Docker Python"
+
+app.run(host="0.0.0.0", port=5000)
+EOF
+
+cat > requirements.txt <<EOF
+flask
+EOF
+
+cat > Dockerfile <<EOF
+FROM python:3.10
+
+WORKDIR /app
+
+COPY . .
+
+RUN pip install -r requirements.txt
+
+CMD ["python","app.py"]
+EOF
+
+docker build -t mypythonapp .
+
+docker volume create python-data
+
+docker run -d \
+--name python-container \
+-p 5000:5000 \
+-v python-data:/app \
+mypythonapp
