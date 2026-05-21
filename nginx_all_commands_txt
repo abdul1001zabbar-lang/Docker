@@ -1,0 +1,239 @@
+docker run hello-world
+==
+docker pull ubunu
+docker run -it ubuntu
+
+===
+1.	docker pull nginx
+2.	docker run -p 8080:80 nginx
+3.	docker run -d -p 8081:80 nginx
+4.	docker run -d --name mynginxc1 -p 8082:80 nginx
+	docker exec -it mynginxc1
+
+5.
+mkdir nginx-app1
+cd nginx1-app
+touch index.html
+echo "<h1>hello abdul!</h1>" > index.html
+
+docker run -d --name mynginxc2 -p 8083:80 -v $(pwd):/usr/share/nginx/html nginx
+
+6.
+
+docker volume create nginx-data
+
+docker run -d --name mynginxc3 -p 8084:80 -v nginx-data:/usr/share/nginx/html nginx
+
+docker ps
+docker volume ls
+dcoker exec -it mynginxc3
+
+cd /usr/share/nginx/html
+echo "<h1>Hello abdul,Wlcome to Docker hub!</h1>" > index.html
+exit
+
+http://localhost:8084
+
+7.
+
+mkdir nginx-app2
+cd nginx2.app2
+touch index.html Dokcerfile
+
+echo "<h1>Custom Docker website</h1>" > index.html
+cat > Dockerfile
+FROM nginx:latest
+COPY index.html /usr/share/nginx/html
+
+
+dcoker volume create nginx-data1
+docker volume ls
+
+docker build -t mynginx1 .
+docker run -d --name mynginxc4 -p 8085:80 -v nginx-data1 :/usr/share/nginx/html mynginx1
+
+8.
+
+mkdir multipage-nginx
+
+cd multipage-nginx
+
+echo "<h1>Home Page</h1>" > index.html
+
+echo "<h1>About Page</h1>" > about.html
+
+docker run -d --name multipage-container -p 8086:80 -v $(pwd):/usr/share/nginx/html
+nginx
+
+docker ps
+
+http://localhost:8085
+
+http://localhost:8085/about.html
+
+====
+
+docker stop nginx-container
+
+docker start nginx-container
+
+docker restart nginx-container
+
+docker rm -f nginx-container 
+
+docker ps
+
+docker images
+
+docker pull nginx
+
+docker exec -it nginx-container
+
+docker logs nginx-container
+
+docker volume ls
+
+docker network ls
+
+
+======
+
+mkdir compose-nginx
+
+cd compose-nginx
+
+cat > docker-compose.yml <<EOF
+version: "3"
+
+services:
+  nginx:
+    image: nginx
+    container_name: nginx-compose
+    ports:
+      - "8086:80"
+EOF
+
+docker compose up -d
+
+=====
+
+mkdir compose-volume-nginx
+
+cd compose-volume-nginx
+
+echo "<h1>Docker Compose Volume</h1>" > index.html
+
+cat > docker-compose.yml <<EOF
+version: "3"
+
+services:
+  nginx:
+    image: nginx
+    container_name: nginx-volume-compose
+    ports:
+      - "8087:80"
+    volumes:
+      - ./:/usr/share/nginx/html
+EOF
+
+docker compose up -d
+
+
+=====
+
+mkdir reverse-proxy
+
+cd reverse-proxy
+
+cat > default.conf <<EOF
+server {
+    listen 80;
+
+    location / {
+        proxy_pass http://host.docker.internal:5000;
+    }
+}
+EOF
+
+docker run -d \
+--name reverse-nginx \
+-p 8088:80 \
+-v $(pwd)/default.conf:/etc/nginx/conf.d/default.conf \
+nginx
+
+====
+
+mkdir docker-compose-project
+
+cd docker-compose-project
+
+mkdir app
+
+cd app
+
+
+
+cat > app.py <<EOF
+from flask import Flask
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "Hello from Python App"
+
+app.run(host="0.0.0.0", port=5000)
+EOF
+
+
+cat > requirements.txt <<EOF
+flask
+EOF
+
+
+cat > Dockerfile <<EOF
+FROM python:3.11
+
+WORKDIR /app
+
+COPY . .
+
+RUN pip install -r requirements.txt
+
+CMD ["python","app.py"]
+EOF
+
+
+
+cat > docker-compose.yml <<EOF
+services:
+
+  python-app:
+    build: ./app
+    container_name: python-container
+    ports:
+      - "5000:5000"
+
+  nginx:
+    image: nginx
+    container_name: nginx-container
+    ports:
+      - "8080:80"
+
+  mysql:
+    image: mysql:8
+    container_name: mysql-container
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: mydb
+    ports:
+      - "3306:3306"
+EOF
+
+
+docker compose up -d
+
+http://localhost:5000
+http://localhost:8080
+
+
+
