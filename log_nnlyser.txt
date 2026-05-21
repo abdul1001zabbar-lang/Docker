@@ -1,0 +1,32 @@
+log-analyzer/
+├── app.py
+└── sample.log
+
+
+mkdir log-analyzer
+cd log-analyzer
+
+touch app.py sample.log
+
+file = open("sample.log","r")
+
+logs = file.readlines()
+
+error_count = 0
+warning_count = 0
+info_count = 0
+
+for line in logs:
+
+    if "ERROR" in line:
+        error_count += 1
+
+    elif "WARNING" in line:
+        warning_count += 1
+
+    elif "INFO" in line:
+        info_count += 1
+
+print("INFO:", info_count)
+print("WARNING:", warning_count)
+print("ERROR:", error_count)
