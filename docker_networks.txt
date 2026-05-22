@@ -1,0 +1,38 @@
+docker network ls
+docker network create mynetwork
+docker run -dit --name mycontainer1 --network mynetwork ubuntu bash
+docker run -dit --name mycontainer2 --natwork mynetwork ubuntu bash
+
+docker exec -it mycontainer1 bash
+apt update
+apt install iputils -ping -yml
+ping container2
+exit
+
+docker network connect mynetwork container1
+docker network disconnect mynetwork container1
+docker rm mynetwork
+docker rm -f container1
+docker rm -f container2
+
+=====================================================
+
+docker network create nginx-network
+
+docker run -d \
+--name nginx-c1 \
+--network nginx-network \
+-p 8080:80 \
+nginx
+
+
+docker run -it \
+--name ubuntu-c1 \
+--network nginx-network \
+ubuntu bash
+
+apt update
+apt install curl -y
+
+
+curl nginx-c1

@@ -1,0 +1,17 @@
+body{
+    background-color: lightblue;
+    text-align: center;
+    margin-top: 50px;
+}
+
+input{
+    padding: 10px;
+}
+
+button{
+    padding: 10px;
+}
+
+li{
+    font-size: 20px;
+}

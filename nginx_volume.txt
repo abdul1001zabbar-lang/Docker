@@ -1,0 +1,20 @@
+mkdir custom-nginx
+
+cd custom-nginx
+
+echo "<h1>Custom Docker Website</h1>" > index.html
+
+cat > Dockerfile <<EOF
+FROM nginx
+COPY index.html /usr/share/nginx/html
+EOF
+
+docker build -t mynginx .
+
+docker volume create nginx-data
+
+docker run -d \
+--name custom-container \
+-p 8083:80 \
+-v nginx-data:/usr/share/nginx/html \
+mynginx
