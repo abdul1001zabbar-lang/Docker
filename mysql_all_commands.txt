@@ -1,0 +1,309 @@
+=================MYSQL Basic ===================
+docker pull mysql:8.0
+docker run -d --name mysql-c1 -e MYSQL_ROOT_PASSWORD=root123 -p 3306:3306 myql:8.0
+
+docker ps
+docker logs mysql-c1
+docker exec -it mysql-c1 bash
+mysql -u root -p
+root123
+
+SHOW DATABASES;
+o/p:-information_schema
+mysql
+performance_schema
+sys
+
+CREATE DATABASE company;
+
+USE company;
+
+CREATE TABLE employees (
+
+id INT PRIMARY KEY AUTO_INCREMENT,
+
+name VARCHAR(50),
+
+salary INT
+
+);
+
+SHOW TABLES;
+
+INSERT INTO employees(name,salary)
+VALUES("abdul",50000);
+
+SELECT * FROM employees;
+
+exit --mysql
+exit--container
+
+
+docker stop mysql-c1
+docker start mysql-c1
+
+docker rm -f mysql-c1
+
+===============MYSQL with Bindmount=====================
+
+mkdir mysql-bindmount
+cd mysql-bindmount
+mkdir mysql-data
+
+docker run -d --name mysql-bind-c1 -e MYSQL_ROOT_PASSWORD=root123 -p 3306:3306 -v $(pwd)/mysql-data:var/lib/mysql mysql:8.0
+
+docker exec -it mysql-bind-c1 bash
+docker -u root -p
+root123
+
+CREATE DATABASE company;
+USE company;
+CREATE TABLE employees (
+
+id INT PRIMARY KEY AUTO_INCREMENT,
+name VARCHAR(50),
+salary INT
+);
+
+INSERT INTO employees(name,salary)
+VALUES("abdul",50000);
+
+SELECT * FROM employees;
+
+#if again run container same o/p will get
+
+docker run -d --name mysql-new-c1 -e MYSQL_ROOT_PASSWORD=root123 -p 3306:3306 -v $(pwd)/mysql-data:/var/lib/mysql mysql:8.0
+
+docker exec -it mysql-bind-c1 bash
+docker -u root -p
+root123
+
+SELECT * FROM employees;
+
+
+=================MYSQL with named volume===================
+docker volume create mysql-data
+docker run -d --name mysql-volume-c1 -e MYSQL_ROOT_PASSWORD=root123 -p 3306:3306 -v mysql-data:/var/lib/mysql mysql:8.0
+docker logs mysql-volume-c1
+#outputready for connections
+
+docker exec -it mysql-volume-c1 bash
+mysql -u root -p
+root123
+
+CREATE DATABASE company;
+USE company:
+CREATE TABLE employees (
+id INT PRIMARY KEY AUTO_INCREMENT,
+name VARCHAR(50),
+salary INT
+);
+INSERT INTO employees(name,salary)
+VALUES("abdul",50000);
+
+SELECT * FROM employees;
+
+docker rm -f myql-volume-c1
+
+again run
+docker run -d --name mysql-new-c1 -e MYSQL_ROOT_PASSWORD=root123 -p 3306:3306 -v mysql-data:/var/lib/mysql mysql:8.0
+docker exec -it mysql-new-c1 bash
+mysql -u root -p
+root123
+
+SELECT * FROM employees;
+
+
+====================================
+docker network create mysql-net
+docker run -d --name mysql-c1 --network mysql-net -e MYSQL_ROOT_PASSWORD=root123 mysql:8.0
+
+docker run -it --name ubuntu-c1 --network mysql-net ubuntu bash
+apt update
+apt install mysql-client -y
+mysql -h mysql-c1 -u root -p
+root123
+
+CREATE DATABASE company;
+USE company:
+CREATE TABLE employees (
+id INT PRIMARY KEY AUTO_INCREMENT,
+name VARCHAR(50),
+salary INT
+);
+INSERT INTO employees(name,salary)
+VALUES("abdul",50000);
+
+SELECT * FROM employees;
+
+apt install iputils-ping -y
+
+ping mysql-c1
+
+
+===
+docker exec -it myql-c1
+apt update
+apt install iputils-ping -p
+ping ubuntu-c1
+
+
+
+
+=================MYSQL voluem + network===================
+docker network create mysql-net
+docker volume create mysql-data
+
+docker run -d --name mysql-c1 --network mysql-net -e MYSQL_ROOT_PASSWORD=root123 -v mysql-data:/var/lib/mysql mysql:8.0
+
+docker run -it --name ubuntu-c1 --network mysql-net ubuntu bash
+apt update
+apt install iputils-ping -y
+ping mysql-c1
+
+apt install mysql-client -y
+mysql -h mysql-c1 -u root -p
+root123
+
+CREATE DATABASE company;
+USE company:
+CREATE TABLE employees (
+id INT PRIMARY KEY AUTO_INCREMENT,
+name VARCHAR(50),
+salary INT
+);
+INSERT INTO employees(name,salary)
+VALUES("abdul",50000);
+
+SELECT * FROM employees;
+
+docker rm -f myql-c1
+docker run -d --name mysql-new-c1 --network mysql-net -e MYSQL_ROOT_PASSWORD=root123 -v mysql-data:/var/lib/mysql mysql:8.0
+docker exec -it mysql-new-c1 bash
+mysql -u root -p
+root
+SHOW DATABASES;
+SELECT * FROM employees;
+
+docker stop myql-new-c1
+
+
+
+
+================MYSQL with volume + network + compose====================
+mkdir mysql-compose
+cd mysql-compose
+touch docker-compose.yml
+vim docker-compose.yml
+version:'3'
+    services:
+        mysql-db:
+            image: mysql:8.0
+            container_name:mysql-compose-c1
+            environment:MYSQL_ROOT_PASSWORD
+            ports:
+                -"3306:3306"
+            volumes:
+                -mysql-data:/var/lib/mysql
+            networks:
+                -mysql-network   
+
+        ubuntu:
+            image:ubuntu
+            container_name:ubuntu-c1
+            tty:true
+            networks:
+                - myql-network
+volumes:
+  mysql-data:
+
+networks:
+  mysql-network:
+
+
+docker compose up -d
+docker logs mysql-compose-c1
+#o/p :-ready for connections
+
+docker exec -it ubuntu-c1 bash
+apt update
+apt install iputils-ping -y
+ping mysql-db
+
+apt install mysql-client -y
+mysql -h mysql-db -u root -p
+root123
+
+CREATE DATABASE company;
+USE company:
+CREATE TABLE employees (
+id INT PRIMARY KEY AUTO_INCREMENT,
+name VARCHAR(50),
+salary INT
+);
+INSERT INTO employees(name,salary)
+VALUES("abdul",50000);
+
+SELECT * FROM employees;
+
+docker exec -it mysql-compose-c1 bash
+mysql -u root -p
+root123
+SHOW DATABASES;
+
+
+================MYSQL named volume + network + compose ====================
+
+mkdir mysql-compose-volume-network
+cd mysql-compose-volume-network
+touch docker-compose.yml
+vim docker-compose.yml
+version: '3'
+
+services:
+
+  mysql-db:
+
+    image: mysql:8.0
+
+    container_name: mysql-compose-c1
+
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+
+    ports:
+      - "3306:3306"
+
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+    networks:
+      - mysql-network
+
+
+  ubuntu:
+
+    image: ubuntu
+
+    container_name: ubuntu-c1
+
+    tty: true
+
+    networks:
+      - mysql-network
+
+
+volumes:
+
+  mysql-data:
+
+
+networks:
+
+  mysql-network:
+
+
+docker compose up -d
+
+
+====================================

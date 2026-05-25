@@ -1,0 +1,195 @@
+=================Baisic flask===================
+mkdir flask-demo
+cd flask-demo
+touch app.py requirements.txt Dockerfile
+cat >app.py
+
+from flask import Flask
+app = Flask(__name__)
+
+@app.route("/)
+def home():
+    return "Welcome to Home page"
+
+@app.route("/about)
+def about():
+    return "Welcome to About page"
+
+@app.route("/contact")
+def home():
+    return "Welcome to Contact page"
+
+app.run(host="0.0.0.0.0",host=5000) 
+
+
+cat >Dockerfile
+FROM python:3.10
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+CMD ["python","app.py"]
+
+cat >requirements.txt
+flask
+
+docker build -t flaskapp .
+docker run -d --name flask-c1 -p 5000:5000 flaskapp
+
+docker logs flask-c1
+outpu:-Running on http://0.0.0.0:5000
+
+docker exec -it flask-c1 bash
+ls
+cat app.py Dockerfile requirements.txt
+exit
+
+
+http://localhost:5000
+
+
+docker stop flask-c1
+docker restart flask-c1
+docker rm flask-c1
+docker rmi flaskapp
+================Flask with bind mount volume====================
+
+mkdir flask-volume
+cd flask-volume
+touch app.py requirements.txt Dockerfile
+
+
+docker build -t flaskvolume .
+docker run -d --name flask-volume-c1 -p 5000:5000 -v $(pwd):/app flaskvolume
+
+http://localhost:5000
+
+#now change app.py refresh browser o/p will change
+
+
+==================Flask with named volume==================
+
+mkdir flask-named-volume
+cd flask-named-volume
+touch app.py requirements.txt Dockerfile
+
+docker build -t flasknamedvolume .
+docker volume create flask-data
+docker run -d --name flask-named-c1 -p 5000:5000 -v flask-data:/app flasknamedvolume
+
+docker volume inspect flask-data
+
+docker exec -it flask-named-c1 bash
+echo "Hello docker>demo.txt
+exit
+
+#if deleted container data will store in volume, Now if again created container will see demo.txt
+
+docker run -d --name flask-new-c1 -p 5000:5000 -v flask-data:/app flasknamedvolume
+docker exec -it flask-named-c1 bash
+ls
+cat demo.txt
+
+===============Flask with network=====================
+mkdir flask-network
+cd flask-network
+touch app.py requirements.txt Dockerfile
+
+docker build -t flasknetwork .
+docker network create flask-net
+docker run -d --anem flask-c1 --network flask-net -p 5000:5000 flasknetwork
+
+http://localhost:5000
+
+docker run -it --name ubuntu-c1 --network flask-net ubuntu bash
+apt update
+apt install curl -y
+curl flask-c1:5000
+
+apt install iputils-ping -y
+ping flask-c1
+
+
+=================Flask with compose===================
+mkdir flask-compose
+cd flask-compose
+tocuh app.py requirements.txt Dockerfile docker-compose.yml
+
+vim dokcer-compose.yml
+
+version: '3'
+    services:
+        flaskapp:
+            build: .
+            container-name:flask-compose-c1
+            ports:
+            -"5000:5000"
+
+docker compose up -d --build
+
+http://localhost:5000
+
+docker compose ps
+
+docker logs flask-compose-c1
+Running on http://0.0.0.0:5000
+
+docker compose down
+#if again wnat to startagain
+docker compose up -d
+===============Flask compose with volume network=====================
+
+mkdir flask-compose-volume-network
+cd flask-compose-volume-network
+touch app.py requirements.txt Dockerfile docker-compose.yml
+
+vim docker-compose.yml
+version:'3'
+    services:
+        flaskapp:
+            build: .
+            container_name:flask-compose-c2
+            ports:
+                -"5000:5000"
+            volumes:
+                - .:/app
+            network:
+                -flasks-network
+        ubuntu:
+            image:ubuntu
+            container_name:ubuntu-c1
+            tty:true
+            network:
+                -flask-network            
+network:
+    flask-network
+
+
+
+docker compose up -d --build
+http://localhost:5000
+
+docker exec -it ubuntu-c1 bash
+
+apt update
+apt install curl -y
+curl flaskapp:5000
+
+apt install iputils-ping -y
+ping flaskapp
+
+if change snaything in app.py refresh browser o/p will changes
+http://localhost:5000
+
+ocker exec -it flask-compose-c2 bash
+apt update
+apt install iputils -y
+ping ubuntu
+
+
+====================================
+====================================
+
+
+
+
