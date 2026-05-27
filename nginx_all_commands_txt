@@ -78,13 +78,33 @@ Named Volume Example
 ================Nginx with network=====================
 docker network create webnet
 
-docker run -dit --name c1 --network webent -p808x:80 nginx
+docker run -dit --name c1 --network webent -p8083:80 nginx
 
-docker run -it --name ubuntu c1 --network webnet ubuntu bash
+docker run -it --name ubuntu-c1 --network webnet ubuntu bash
 
 apt update
 apt install curl -y
 curl nginx-c1
+
+apt install iputils-ping -y
+ping c1
+
+================Nginx with volume + network ====================
+mkdir volume-network
+cd volume-network
+docker volume create myvol
+docker network create webnet1
+
+docker run -dit --name volume-networkc1 --network webnet1 -v myvol:/usr/share/nginx/html -p8084:80 nginx
+
+docker run -it --name ubuntu-c2 --network webnet1 ubuntu bash
+
+apt update
+apt install curl -y
+curl nginx-c1
+
+
+
 ===============Docker compose basic=====================
 mdkir nginx-compose
 cd nginx-compose
