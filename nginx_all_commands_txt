@@ -78,7 +78,7 @@ Named Volume Example
 ================Nginx with network=====================
 docker network create webnet
 
-docker run -dit --name c1 --network webent -p8083:80 nginx
+docker run -dit --name c1 --network webnet -p8083:80 nginx
 
 docker run -it --name ubuntu-c1 --network webnet ubuntu bash
 
