@@ -113,9 +113,9 @@ docker run -it --name ubuntu-c2 --network webnet1 ubuntu bash
 
 apt update
 apt install curl -y
+apt install iputils-ping -yml
 curl nginx-c1
-
-
+ping nginx-c1
 
 ===============Docker compose basic=====================
 mdkir nginx-compose
@@ -123,9 +123,10 @@ cd nginx-compose
 touch docker-compose.yml
 
 cat >docker-compose.yml
-services: '3'
+version: '3"
+services:
   nginx:
-    image:nginx
+    image: nginx
     container_name: compose-nginx
     ports:
       -"8084:80"
@@ -166,46 +167,42 @@ services:
     volumes:
       - .:/usr/share/nginx/html
 
-*****************
-version: '3'
-
+==============Dokcer compose with ubutu default network====
+version:'3'
 services:
-
   nginx:
-
     image: nginx
-
-    container_name: nginx-compose-c1
-
+    container_name: nginx-c1
     ports:
-      - "8080:80"
-
-    volumes:
-      - nginx-data:/usr/share/nginx/html
-
-    networks:
-      - nginx-network
-
+      - "8089:80"
 
   ubuntu:
-
     image: ubuntu
-
     container_name: ubuntu-c1
-
     tty: true
-
+===============DOCKER COMPOSE WITH Named VOLUME=====================
+version: '3'
+services:
+  nginx:
+    image: nginx
+    container_name: nginx-compose-c1
+    ports:
+      - "8080:80"
+    volumes:
+      - nginx-data:/usr/share/nginx/html
     networks:
       - nginx-network
 
+  ubuntu:
+    image: ubuntu
+    container_name: ubuntu-c1
+    tty: true
+    networks:
+      - nginx-network
 
 volumes:
-
   nginx-data:
-
-
 networks:
-
   nginx-network:
 
 ******************************
@@ -236,138 +233,23 @@ docker compose up -d #start again
 
 
 ===============Flask+ nginx=====================
-mkdir flask-nginx
-cd flask-nginx
-touch app.py Dockerfile requirements.txt
-
-mkdir nginx-app
-cd nginx-app
-touch default.conf
-vim default.conf
-server {
-
-    listen 80;
-
-    location / {
-
-        proxy_pass http://flaskapp:5000;
-
-    }
-
-}
-
-
-docker build -t flaskapp .
-docker run -d --name flask-c1 -p 5000:5000 flaskapp
-docker run -d --name nginx-c1 -p8080:80 nginx
-
-#need to try this //
-
-==================Flask + Nginx + volume + network + compose ==================
-========================================
-BASIC FLASK + NGINX
-========================================
-
-
-#################################################
-PROJECT FLOW
-#################################################
-
-Browser
-   ↓
-Nginx
-   ↓
-Flask
-
-
-#################################################
-STEP 1 — CREATE PROJECT FOLDER
-#################################################
-
-mkdir flask-nginx-basic
-
-cd flask-nginx-basic
-
-
-#################################################
-STEP 2 — CREATE FILES
-#################################################
-
-touch app.py
-
-touch requirements.txt
-
-touch Dockerfile
-
-touch default.conf
-
-touch docker-compose.yml
-
-
-#################################################
-STEP 3 — WRITE FLASK CODE
-#################################################
-
+mkdir flask-app
+cd flask-app
+touch app.py Dockerfile
+==========================
 vim app.py
-
-
---------------------------------
-app.py
---------------------------------
-
 from flask import Flask
 
 app = Flask(__name__)
 
 @app.route("/")
+
 def home():
-    return "Hello Flask Nginx"
+  return "Hello Flask Docker"
 
 app.run(host="0.0.0.0", port=5000)
-
-
---------------------------------
-SAVE FILE
---------------------------------
-
-ESC
-
-:wq
-
-
-#################################################
-STEP 4 — CREATE REQUIREMENTS FILE
-#################################################
-
-vim requirements.txt
-
-
---------------------------------
-requirements.txt
---------------------------------
-
-flask
-
-
---------------------------------
-SAVE FILE
---------------------------------
-
-ESC
-
-:wq
-
-
-#################################################
-STEP 5 — CREATE DOCKERFILE
-#################################################
-
+===================
 vim Dockerfile
-
-
---------------------------------
-Dockerfile
---------------------------------
 
 FROM python:3.10
 
@@ -375,228 +257,54 @@ WORKDIR /app
 
 COPY . .
 
-RUN pip install -r requirements.txt
+RUN pip install flask
 
-CMD ["python","app.py"]
+CMD ["python", "app.py"]
+==============================
+docker network create mynet
+docker build -t flaskapp .
+docker run -d --name flask-c1 --network mynet -p 5000:5000 flaskapp
 
-
---------------------------------
-SAVE FILE
---------------------------------
-
-ESC
-
-:wq
-
-
-#################################################
-STEP 6 — CREATE NGINX CONFIG
-#################################################
-
-vim default.conf
-
-
---------------------------------
-default.conf
---------------------------------
-
+cd ..
+mkdir nginx-app
+cd nginx-app
+cat >default.conf
 server {
+  listen 80;
 
-    listen 80;
+  location /{
+    proxy_pass http://flask-c1:5000;
 
-    location / {
-
-        proxy_pass http://flaskapp:5000;
-
-    }
-
+  }
 }
 
+docker run -d --name nginx-c1 --network mynet -p 8080:80 -v $(pwd)/default.conf:/etc/nginx/conf.d/default.conf nginx
 
---------------------------------
-SAVE FILE
---------------------------------
 
-ESC
 
-:wq
+check below things
+docker exec -it nginx-c1 bash
+cat /etc/nginx/conf.d/default.conf
 
+docker exec -it nginx-c1 bash
+curl http://flask-c1:5000
 
-#################################################
-STEP 7 — CREATE COMPOSE FILE
-#################################################
+flask-app/
+ ├── app.py
+ └── Dockerfile
 
-vim docker-compose.yml
+nginx-app/
+ └── default.conf
 
 
---------------------------------
-docker-compose.yml
---------------------------------
-
-version: '3'
-
-services:
-
-  flaskapp:
-
-    build: .
-
-    container_name: flask-c1
-
-    networks:
-      - flask-network
-
-
-  nginx:
-
-    image: nginx
-
-    container_name: nginx-c1
-
-    ports:
-      - "8080:80"
-
-    volumes:
-      - ./default.conf:/etc/nginx/conf.d/default.conf
-
-    depends_on:
-      - flaskapp
-
-    networks:
-      - flask-network
-
-
-networks:
-
-  flask-network:
-
-
---------------------------------
-SAVE FILE
---------------------------------
-
-ESC
-
-:wq
-
-
-#################################################
-STEP 8 — CHECK FILES
-#################################################
-
-ls
-
-
---------------------------------
-OUTPUT
---------------------------------
-
-app.py
-requirements.txt
-Dockerfile
-default.conf
-docker-compose.yml
-
-
-#################################################
-STEP 9 — START PROJECT
-#################################################
-
-docker compose up -d --build
-
-
-#################################################
-STEP 10 — CHECK CONTAINERS
-#################################################
-
-docker ps
-
-
---------------------------------
-OUTPUT
---------------------------------
-
-CONTAINER ID   IMAGE    NAMES
-xxxxxxx        nginx    nginx-c1
-xxxxxxx        flask    flask-c1
-
-
-#################################################
-STEP 11 — OPEN BROWSER
-#################################################
-
-http://localhost:8080
-
-
---------------------------------
-OUTPUT
---------------------------------
-
-Hello Flask Nginx
-
-
-#################################################
-STEP 12 — CHECK LOGS
-#################################################
-
-docker logs flask-c1
-
-docker logs nginx-c1
-
-
-#################################################
-STEP 13 — STOP PROJECT
-#################################################
-
-docker compose down
-
-
-#################################################
-IMPORTANT
-#################################################
-
-Flask
-- Backend application
-
-Nginx
-- Reverse proxy
-
-proxy_pass
-- Sends traffic to flask container
-
-
-#################################################
-FLOW
-#################################################
-
-Browser
-   ↓
-Nginx
-   ↓
-Flask
-
-
-#################################################
-IMPORTANT COMMANDS
-#################################################
-
-docker compose up -d --build
-
-docker compose down
-
-docker ps
-
-docker logs flask-c1
-
-docker logs nginx-c1
-
-
-
-
-
-
-
-
-
-====================================
-====================================
+=================================================================
+project/
+│
+├── flask-app/
+│   ├── app.py
+│   └── Dockerfile
+│
+├── nginx-app/
+│   └── default.conf
+│
+└── docker-compose.yml
