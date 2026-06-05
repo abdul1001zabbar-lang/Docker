@@ -1,10 +1,10 @@
 ===========Normal nginx============
 docker pull nginx
-docker run -d --name c1 -p 8080:80 nginx#
+docker run -d --name c1 -p 8080:80 nginx
 
 #goto browser o/p will be Welcome to Nginx
 
-#Now if we want to change santhing in index.html file o/p will change but need to rebuild again
+#Now if we want to changes anthing in index.html file o/p will change but need to rebuild again
 
 docker exec -it c1 bash
 cd /usr/share/nginx/htmls
@@ -23,7 +23,7 @@ echo <h1>About Page</h1>
 echo <h1>Contact Page</h1>
 cat > Dockerfile
 FROM nginx
-COPY . /usr/share/nginx/html
+COPY index.html /usr/share/nginx/html/index.html
 
 ==
 docker build -t multinginx .
@@ -32,6 +32,17 @@ docker run -d --name multi-c1 -p 8080:80 multinginx
 http://localhost:8080
 http://localhost:8080/about.html
 http://localhost:8080/contact.html
+
+
+
+#Now if I will chnage anything in index.html it will not change in beowser need to rebuild again
+docker rm -f multi-c1
+docker build -t multinginx .
+docker run -d --name multi-c1 -p 8080:80 multinginx
+
+
+
+
 
 ================Bind Mount Nginx with local file====================
 mkdir nginx-volume
@@ -64,6 +75,7 @@ o/p may be
 403 Forbidden
 nginx/1.xx.x
 
+
 docker exec -it c3 bash
 echo "<h1>Home Named Volume</h1>" > /usr/share/nginx/html/index.html
 echo "<h1>About Named Volume</h1>" > /usr/share/nginx/html/about.html
@@ -73,7 +85,7 @@ exit
 http://localhost:8083
 http://localhost:8083/about.html
 http://localhost:8083/contact.html
-Named Volume Example
+
 
 ================Nginx with network=====================
 docker network create webnet
@@ -114,8 +126,8 @@ cat >docker-compose.yml
 services: '3'
   nginx:
     image:nginx
-    container_name:compose-nginx
-    port:
+    container_name: compose-nginx
+    ports:
       -"8084:80"
 
 
@@ -124,7 +136,17 @@ docker compose ps
 Browser:http://localhost:8084
 Welcome to nginx!
 
+docker compose up -d
 docker compose down
+docker compose start
+docker compose stop
+docker compose ps
+docker compose logs
+docker compose images
+docker compose down -v
+docker compose down -v --rmi all
+docker compose rm -f
+docker compose rm -f nginx
 
 
 ===============DOCKER COMPOSE WITH Bindmount VOLUME=====================

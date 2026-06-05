@@ -1,0 +1,12 @@
+docker pull mongo
+
+docker run -d --name mongo-c1 -p 27017:27017 mongo
+
+docker exec -it mongo-c1 bash
+
+docker run -d --name mongo-c2 -p 27017:27017 -v mongo-data:/data/db mongo
+
+docker run -d --name mongo-auth -p 27017:27017 \
+-e MONGO_INITDB_ROOT_USERNAME=admin \
+-e MONGO_INITDB_ROOT_PASSWORD=admin123 \
+mongo

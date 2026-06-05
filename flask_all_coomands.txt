@@ -137,7 +137,7 @@ Running on http://0.0.0.0:5000
 docker compose down
 #if again wnat to startagain
 docker compose up -d
-===============Flask compose with volume network=====================
+===============Flask compose with Bind mount volume network=====================
 
 mkdir flask-compose-volume-network
 cd flask-compose-volume-network
@@ -164,8 +164,15 @@ version:'3'
 network:
     flask-network
 
+**************************
+if want to add name volume
+volumes:
+      - flask-data:/app
 
+volumes:
 
+  flask-data:
+***************************
 docker compose up -d --build
 http://localhost:5000
 

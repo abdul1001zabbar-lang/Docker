@@ -41,4 +41,72 @@ apt install -y nginx
 
 service nginx start
 
+==============================================
+mkdir ubuntu-python
 
+cd ubuntu-python
+
+cat > app.py <<EOF
+print("Hello Abdul")
+EOF
+
+cat > Dockerfile <<EOF
+FROM ubuntu:latest
+
+WORKDIR /app
+
+COPY . .
+
+RUN apt update && apt install -y python3
+
+CMD ["python3","app.py"]
+EOF
+
+docker build -t ubuntu-python .
+
+docker run -it ubuntu-python
+
+======================================
+
+# ===================================
+# Ubuntu + Curl Program
+# ===================================
+
+docker run -it ubuntu:latest bash
+
+apt update
+
+apt install -y curl
+
+curl google.com
+==========================================
+
+# ===================================
+# Ubuntu + Git Program
+# ===================================
+
+docker run -it ubuntu:latest bash
+
+apt update
+
+apt install -y git
+
+git --version
+
+=============================================
+
+# ===================================
+# Ubuntu + Network Program
+# ===================================
+
+docker network create mynetwork
+
+docker run -dit --name ubuntu1 --network mynetwork ubuntu
+
+docker run -dit --name ubuntu2 --network mynetwork ubuntu
+
+
+docker exec -it ubuntu1 bash
+apt update
+apt install -y iputils-ping
+ping ubuntu2
