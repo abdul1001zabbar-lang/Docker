@@ -1,0 +1,44 @@
+============Basic Ubuntu Docker Container=================
+docker pull ubuntu
+
+docker run -it ubuntu bash
+
+
+
+===============Ubuntu Container in Background=============
+docker run -dit --name uc1 ubuntu
+
+docker exec -it uc1 bash
+
+================================
+
+docker volume create ubuntu-data
+docker network create mynet
+
+docker run -dit --name uc2 -p8081:80 -v ubuntu-data:/app/data nginx
+
+docker network create mynet
+docker run -dit --name uc3 -p8081:80 --network mynet nginx
+
+========================================
+
+docker run -dit --name uc2 -p 8080:80  ubuntu
+docker exec -it uc2 bash
+apt update
+apt install -y python3
+python3 --version
+
+
+============================================
+
+docker run -dit --name uc3 -p 8081:80 ubuntu
+
+docker exec -it uc3 bash
+
+apt update
+
+apt install -y nginx
+
+service nginx start
+
+
