@@ -1,0 +1,19 @@
+inventory
+playback
+task
+module
+role
+
+ansible-project/
+├── inventory
+├── playbook.yml
+├── group_vars/
+├── host_vars/
+├── roles/
+├── templates/
+├── files/
+└── ansible.cfg
+
+sudo apt update && sudo apt upgrade -y
+sudo apt install anisible -y
+

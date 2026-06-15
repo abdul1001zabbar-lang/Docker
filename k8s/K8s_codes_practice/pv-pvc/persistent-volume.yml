@@ -1,0 +1,99 @@
+#Pod → PVC → PV → Storage
+#in real life PVC is used
+#PV show the stoarge data
+#pvc asking for data like 5g i need to run app
+# Retain  → Keep data
+# Delete  → Remove storage
+# Recycle → Deprecated
+
+apiVersion: v1
+kind: PersistentVolume
+
+metadata:
+  name: nginx-pv
+  labels:
+    app: nginx-app
+
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: manual
+  hostPath:
+    path: /mnt/data/nginx
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+
+metadata:
+  name: nginx-pvc
+  namespace: dev
+  labels:
+    app: nginx-app
+
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: manual
+
+================================  
+apiVersion: v1
+kind: PersistentVolume
+
+metadata:
+  name: my-pv
+
+spec:
+  capacity:
+    storage: 1Gi
+
+  accessModes:
+  - ReadWriteOnce
+
+  hostPath:
+    path: /data
+
+#==========Persistent Volume Claim (PVC)======
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+
+metadata:
+  name: my-pvc
+
+spec:
+  accessModes:
+  - ReadWriteOnce
+
+  resources:
+    requests:
+      storage: 500Mi
+
+
+kubectl apply -f pvc.yml
+
+#=======
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: nginx-pod
+
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+
+    volumeMounts:
+    - name: my-storage
+      mountPath: /usr/share/nginx/html
+
+  volumes:
+  - name: my-storage
+    persistentVolumeClaim:
+      claimName: my-pvc

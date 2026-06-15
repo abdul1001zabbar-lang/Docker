@@ -1,0 +1,168 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: nginx-stateful
+spec:
+  serviceName: "nginx"
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+
+
+
+#kubectl apply -f statefulset.yaml
+#kubectl get sts
+#kubectl get pods
+#kubectl get pod -o wide
+#kubectl describe sts nginx-statfulset
+#kubectl scale sts nginx-statefulset --replicas=5
+#kubectl scale sts nginx-statefulset --replicas=2
+#kubectl logs nginx-statefulset-0
+#kubectl delete pod nginx-statefulset-0
+#same name pod will created
+#kubectl exec -it nginx-statefulset-0 -- bash
+
+#kubectl delete -f statefulset.yaml
+---
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: mysql-service
+  namespace: dev
+
+spec:
+  clusterIP: None
+
+  selector:
+    app: mysql
+
+  ports:
+  - port: 3306
+    targetPort: 3306
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+
+metadata:
+  name: mysql-statefulset
+  namespace: dev
+  labels:
+    app: mysql
+
+spec:
+  serviceName: mysql-service
+
+  replicas: 3
+
+  selector:
+    matchLabels:
+      app: mysql
+
+  template:
+    metadata:
+      labels:
+        app: mysql
+
+    spec:
+      containers:
+      - name: mysql-container
+        image: mysql:8.0
+
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: root123
+
+        ports:
+        - containerPort: 3306
+
+        volumeMounts:
+        - name: mysql-storage
+          mountPath: /var/lib/mysql
+
+  volumeClaimTemplates:
+  - metadata:
+      name: mysql-storage
+
+    spec:
+      accessModes:
+      - ReadWriteOnce
+
+      resources:
+        requests:
+          storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: nginx-service
+  namespace: dev
+
+spec:
+  clusterIP: None
+
+  selector:
+    app: nginx-app
+
+  ports:
+  - port: 80
+    targetPort: 80
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+
+metadata:
+  name: nginx-statefulset
+  namespace: dev
+  labels:
+    app: nginx-app
+
+spec:
+  serviceName: nginx-service
+
+  replicas: 3
+
+  selector:
+    matchLabels:
+      app: nginx-app
+
+  template:
+    metadata:
+      labels:
+        app: nginx-app
+
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx
+
+        ports:
+        - containerPort: 80
+
+        volumeMounts:
+        - name: nginx-storage
+          mountPath: /usr/share/nginx/html
+
+  volumeClaimTemplates:
+  - metadata:
+      name: nginx-storage
+
+    spec:
+      accessModes:
+      - ReadWriteOnce
+
+      resources:
+        requests:
+          storage: 1Gi

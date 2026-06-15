@@ -1,0 +1,288 @@
+1. What is Kubernetes?
+Kubernetes is a container orchestration platform used to deploy, manage, scale, and automate containerized applications.
+2. Why do we need Kubernetes?
+High Availability
+Auto Scaling
+Self Healing
+Load Balancing
+Rolling Updates
+3. What is a Cluster?
+A Cluster is a collection of Nodes managed by Kubernetes.
+4. What are the components of the Control Plane?
+kube-apiserver
+etcd
+kube-scheduler
+kube-controller-manager
+5. What are Worker Node components?
+kubelet
+kube-proxy
+Container Runtime
+6. What is etcd?
+A distributed key-value store that stores Kubernetes cluster data.
+7. What is kubelet?
+An agent running on each worker node that communicates with the API server.
+8. What is kube-proxy?
+Handles networking and load balancing for Services.
+Pods
+9. What is a Pod?
+Smallest deployable unit in Kubernetes.
+10. Can a Pod contain multiple containers?
+Yes.
+11. Why is a Pod ephemeral?
+Pods can be destroyed and recreated at any time.
+12. How do you create a Pod?
+kubectl run nginx --image=nginx
+13. List Pods
+kubectl get pods
+14. Describe a Pod
+kubectl describe pod nginx
+15. View Pod logs
+kubectl logs nginx
+ReplicaSet & Deployment
+16. What is a ReplicaSet?
+Maintains the desired number of Pod running at a time.
+17. What is a Deployment?
+Manages ReplicaSets and application updates.
+18. Difference between Pod and Deployment?
+Pod → Single instance
+Deployment → Manages multiple Pods
+19. Scale a Deployment
+kubectl scale deployment nginx --replicas=5
+20. Update Deployment image
+kubectl set image deployment/nginx nginx=nginx:latest
+21. Rollback Deployment
+kubectl rollout undo deployment nginx
+Services
+22. Why do we need Services?
+Pods have changing IP addresses.
+23. Types of Services?
+ClusterIP
+NodePort
+LoadBalancer
+ExternalName
+24. Default Service Type?
+ClusterIP.
+25. What is NodePort?
+Exposes application on a node port.
+26. What is LoadBalancer?
+Exposes application using cloud load balancer.
+27. What is Namespace?
+Logical isolation within a cluster.
+28. List Namespaces
+kubectl get ns
+29. Create Namespace
+kubectl create ns dev
+30. What is ConfigMap?
+Stores non-sensitive configuration.
+31. What is Secret?
+Stores sensitive data like passwords.
+32. Difference between ConfigMap and Secret?
+ConfigMap → Plain text
+Secret → Base64 encoded
+Storage
+33. What is Persistent Volume (PV)?
+Cluster storage resource.
+34. What is Persistent Volume Claim (PVC)?
+Request for storage.
+35. How does PVC bind to PV?
+Based on:
+Storage Class
+Access Mode
+Capacity
+36. What happens if Pod is deleted?
+Data remains if using PV/PVC.
+
+Networking
+37. What is Ingress?
+
+Manages external HTTP/HTTPS access.
+
+38. What is CNI?
+Container Network Interface plugin.
+CNI is a networking plugin that gives Pods IP addresses and enables communication between Pods.
+Calico
+Flannel
+Cilium
+39. What is DNS in Kubernetes?
+Provides service discovery.
+
+Scaling
+40. What is HPA?
+Horizontal Pod Autoscaler.
+
+41. What metrics does HPA use?
+CPU
+Memory
+Custom Metrics
+42. Create HPA
+kubectl autoscale deployment nginx --cpu-percent=50 --min=1 --max=10
+Troubleshooting
+43. Pod is Pending. What do you check?
+Resources
+PVC
+Scheduler events
+Node status
+44. Pod is CrashLoopBackOff. What do you check?
+Logs
+Events
+Image issues
+Configuration
+45. Node is NotReady. What do you check?
+kubelet
+Disk
+Memory
+Network
+46. Check Cluster Events
+kubectl get events
+47. Check Node Status
+kubectl get nodes
+YAML Questions
+48. What are mandatory fields in YAML?
+apiVersion:
+kind:
+metadata:
+spec:
+49. What is selector?
+
+Matches Pods using labels.
+
+50. What are labels?
+
+Key-value pairs used to identify resources.
+
+Example:
+
+labels:
+  app: nginx
+Real DevOps Interview Questions
+51. Difference between Deployment and StatefulSet?
+52. Difference between Service and Ingress?
+53. Difference between PV and PVC?
+54. Difference between ConfigMap and Secret?
+55. Difference between Rolling Update and Recreate?
+56. How does Kubernetes achieve self-healing?
+57. How does Service find Pods?
+
+Answer: Using labels and selectors.
+
+58. How does PVC bind to PV?
+
+Answer: Matching storage requirements.
+
+59. How do Pods communicate?
+
+Answer: Through Cluster Networking.
+1. ClusterIP (default, internal access)
+2. NodePort (exposes service on a node port)
+3. LoadBalancer (cloud load balancer)
+4. ExternalName (maps to an external DNS name)
+==================================================
+I have hands-on experience in Kubernetes (Deployment, Service, Ingress, HPA), Docker, Linux and basic CI/CD, looking for DevOps/Cloud/Support opportunities.
+
+✅ Basic (Must know)
+
+What is Kubernetes?
+What problem does Kubernetes solve?
+What is a Pod?
+Pod vs Container?
+What is a Node?
+What is a Cluster?
+What is a Namespace?
+What is a Deployment?
+Deployment vs ReplicaSet?
+What is a Service?
+Types of Services (ClusterIP, NodePort, LoadBalancer)?
+What is ConfigMap?
+What is Secret?
+What is Ingress?
+What is etcd?
+
+👉 These are very common screening questions [dataquest.io]
+
+16. How does Kubernetes Scheduling Work?
+
+
+✅ Intermediate (DevOps level)
+
+How does Kubernetes scheduling work?
+What is kube-apiserver?
+What is kubelet?
+What is kube-proxy?
+How does Kubernetes handle scaling?
+What is HPA (Horizontal Pod Autoscaler)?
+What is VPA?
+What are liveness/readiness/startup probes?
+What are requests & limits?
+What is a Persistent Volume (PV) & PVC?
+What is a StatefulSet?
+What is DaemonSet?
+What are Labels & Selectors?
+What is RBAC?
+What is Helm?
+
+Explain Kubernetes architecture (control plane + nodes)
+What is reconciliation loop?
+What happens when a Pod fails?
+Rolling update vs rolling back?
+Blue-green vs Canary deployment?
+What is Service Mesh (Istio)?
+How does networking work in K8s?
+What are Taints & Tolerations?
+Node affinity vs pod affinity?
+What is etcd backup strategy?
+How do you secure Kubernetes cluster?
+
+
+✅ Scenario-Based (VERY IMPORTANT)
+👉 Most companies ask these
+
+Pod stuck in CrashLoopBackOff – how to troubleshoot?
+Pod in Pending state – why?
+Getting ImagePullBackOff?
+Service returning 503 error
+Pods not communicating across nodes
+High CPU usage → how to scale?
+Node failure → what happens?
+ConfigMap change → how to reload?
+Deployment stuck during rollout
+OOMKilled container → fix?
+
+
+✅ Command / Practical Questions
+
+kubectl get / describe / logs difference?
+How to debug a Pod?
+How to check node status?
+How to expose a deployment?
+How to rollout restart deployment?
+How to scale manually using kubectl?
+
+
+✅ Shortcut (Top 10 MUST prepare)
+If limited time, prepare these:
+
+Pod / Deployment / Service
+Cluster architecture
+HPA
+Probes (liveness/readiness)
+ConfigMap & Secret
+Ingress
+StatefulSet vs Deployment
+CrashLoopBackOff troubleshooting
+Resource limits
+kubectl debugging
+
+
+
+-------------------
+Deployment
+Pods can be created/deleted anytime.
+No fixed pod name required.
+No persistent storage required.
+Nginx/Apache/Flask App/NodeJS App/React App/Python App/Java App/Frontend Applications/Backend APIs
+
+Statefulset
+Fixed pod names needed.
+Persistent storage needed.
+Stable network identity needed.
+MySQL/PostgreSQL/MongoDB/Redis Cluster/Kafka/Zookeeper/Elasticsearch/Cassandra

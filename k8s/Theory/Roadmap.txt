@@ -1,0 +1,59 @@
+k8s-project/
+│
+├── namespace.yaml
+├── configmap.yaml
+├── secret.yaml
+├── pv.yaml
+├── pvc.yaml
+├── serviceaccount.yaml
+├── role.yaml
+├── rolebinding.yaml
+├── resourcequota.yaml
+├── networkpolicy.yaml
+│
+├── deployment.yaml
+│   ├── replicas
+│   ├── selector
+│   ├── labels
+│   ├── initContainers
+│   ├── containers
+│   │   ├── image
+│   │   ├── ports
+│   │   ├── env
+│   │   ├── ConfigMap
+│   │   ├── Secret
+│   │   ├── volumeMounts
+│   │   ├── resources
+│   │   ├── startupProbe
+│   │   ├── livenessProbe
+│   │   └── readinessProbe
+│   ├── volumes
+│   ├── nodeSelector
+│   ├── tolerations
+│   ├── affinity
+│   └── serviceAccountName
+│
+├── service.yaml
+├── ingress.yaml
+├── hpa.yaml
+│
+├── daemonset.yaml
+│   ├── nodeSelector
+│   ├── tolerations
+│   └── affinity
+│
+├── statefulset.yaml
+│   ├── volumeClaimTemplates
+│   └── serviceName
+│
+├── job.yaml
+├── cronjob.yaml
+│
+└── helm/
+    ├── Chart.yaml
+    ├── values.yaml
+    └── templates/
+        ├── deployment.yaml
+        ├── service.yaml
+        ├── ingress.yaml
+        └── hpa.yaml

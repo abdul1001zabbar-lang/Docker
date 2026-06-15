@@ -1,0 +1,379 @@
+kubectl cluster-info
+kubectl get nodes
+kubectl get namespaces
+
+
+
+=================================================
+1. POD BASICS
+=================================================
+
+What is a Pod?
+- Smallest deployable unit in Kubernetes
+- Contains one or more containers
+
+Command:
+
+kubectl get pods
+
+Architecture:
+
+Kubernetes
+    ↓
+   Pod
+    ↓
+Container(s)
+
+
+=================================================
+2. POD YAML STRUCTURE
+=================================================
+
+pod.yaml
+
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: nginx-pod
+
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+
+Create Pod:
+
+kubectl apply -f pod.yaml
+
+
+=================================================
+3. LABELS & SELECTORS
+=================================================
+
+Purpose:
+- Group Pods
+
+Example:
+
+metadata:
+  labels:
+    app: nginx
+
+Check Labels:
+
+kubectl get pods --show-labels
+
+Selector:
+
+app=nginx
+
+
+=================================================
+4. MULTI-CONTAINER PODS
+=================================================
+
+One Pod
+Multiple Containers
+
+Example:
+
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+
+  - name: sidecar
+    image: busybox
+
+Use Case:
+- Sidecar Logging
+- Monitoring
+
+
+=================================================
+5. ENVIRONMENT VARIABLES
+=================================================
+
+spec:
+  containers:
+  - name: app
+    image: nginx
+
+    env:
+    - name: ENV
+      value: production
+
+Check:
+
+kubectl exec -it pod-name -- env
+
+
+=================================================
+6. RESOURCE REQUESTS & LIMITS
+=================================================
+
+Purpose:
+- CPU and Memory Control
+
+resources:
+  requests:
+    memory: "128Mi"
+    cpu: "100m"
+
+  limits:
+    memory: "256Mi"
+    cpu: "200m"
+
+Benefits:
+- Prevent resource overuse
+
+
+=================================================
+7. VOLUMES
+=================================================
+
+Purpose:
+- Persistent Storage
+
+Example:
+
+volumes:
+- name: data-volume
+
+emptyDir: {}
+
+Mount:
+
+volumeMounts:
+- mountPath: /data
+  name: data-volume
+
+
+=================================================
+8. CONFIGMAPS
+=================================================
+
+Purpose:
+- Store Configuration
+
+Create:
+
+kubectl create configmap app-config \
+--from-literal=ENV=dev
+
+View:
+
+kubectl get configmaps
+
+Use:
+
+envFrom:
+- configMapRef:
+    name: app-config
+
+
+=================================================
+9. SECRETS
+=================================================
+
+Purpose:
+- Store Passwords
+- API Keys
+
+Create:
+
+kubectl create secret generic db-secret \
+--from-literal=password=admin123
+
+View:
+
+kubectl get secrets
+
+Use:
+
+secretKeyRef
+
+
+=================================================
+10. POD NETWORKING
+=================================================
+
+Every Pod gets:
+
+✓ Unique IP Address
+
+Check:
+
+kubectl get pods -o wide
+
+Communication:
+
+Pod A
+   ↓
+Pod B
+
+No NAT Required
+
+
+=================================================
+11. LIVENESS PROBE
+=================================================
+
+Purpose:
+- Restart unhealthy container
+
+Example:
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: 80
+
+If Failed:
+- Kubernetes restarts Pod
+
+
+=================================================
+12. READINESS PROBE
+=================================================
+
+Purpose:
+- Check if Pod is ready
+
+Example:
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: 80
+
+If Failed:
+- No traffic sent to Pod
+
+
+=================================================
+13. COMMANDS & ARGUMENTS
+=================================================
+
+containers:
+- name: ubuntu
+  image: ubuntu
+
+  command: ["sleep"]
+
+  args: ["3600"]
+
+Equivalent:
+
+sleep 3600
+
+
+=================================================
+14. LOGS
+=================================================
+
+View Logs:
+
+kubectl logs pod-name
+
+Follow Logs:
+
+kubectl logs -f pod-name
+
+Multi Container:
+
+kubectl logs pod-name -c container-name
+
+
+=================================================
+15. TROUBLESHOOTING
+=================================================
+
+Check Pods:
+
+kubectl get pods
+
+Describe Pod:
+
+kubectl describe pod pod-name
+
+Check Logs:
+
+kubectl logs pod-name
+
+Enter Pod:
+
+kubectl exec -it pod-name -- bash
+
+Common Issues:
+
+CrashLoopBackOff
+ImagePullBackOff
+OOMKilled
+Pending
+
+
+=================================================
+16. STATIC PODS
+=================================================
+
+Purpose:
+- Managed directly by kubelet
+
+Location:
+
+/etc/kubernetes/manifests/
+
+Example:
+
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: static-nginx
+
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+
+Kubelet automatically creates Pod
+
+
+=================================================
+POD LEARNING FLOW
+=================================================
+
+Pod Basics
+    ↓
+Pod YAML
+    ↓
+Labels & Selectors
+    ↓
+Multi Container Pods
+    ↓
+Environment Variables
+    ↓
+Resources
+    ↓
+Volumes
+    ↓
+ConfigMaps
+    ↓
+Secrets
+    ↓
+Networking
+    ↓
+Liveness Probe
+    ↓
+Readiness Probe
+    ↓
+Commands & Args
+    ↓
+Logs
+    ↓
+Troubleshooting
+    ↓
+Static Pods
+=================================================

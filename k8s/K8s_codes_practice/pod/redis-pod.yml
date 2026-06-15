@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: redis-pod
+
+spec:
+  containers:
+  - name: redis-container
+    image: redis
+    ports:
+    - containerPort: 6379
+
+
+###########mongo-db###############
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: mongodb-pod
+
+spec:
+  containers:
+  - name: mongodb-containers
+    image: mongo
+    ports:
+    - containerPosrt: 27017
+
+###########python############### 
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: python-pod
+
+spec:
+  containers:
+  - name: pyhton-container
+    image: python:3.11
+    commands: ["sleep","3000"]  
+
+###########node js############### 
+apiversion: v1
+kind: Pod
+
+metadata:
+  name: nodejs-pod
+
+spec:
+  containers:
+  - name: nodejs-container
+    image: node:20
+    commnd: ["sleep","3000"]
+
+
+###########MYSQL############### 
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: mysql-pod
+
+spec:
+  container:
+  - name: mysql-container
+    image: mysql:8.0
+    env:
+    - name: MYSQL_ROOT_PASSWORD
+      value: "password123"
+      ports:
+      - containerPort: 3306
+
+###########apache############### 
+
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: apache-pod
+
+spec:
+  containers:
+  - name: apache-container
+    image: httpd
+    ports:
+    - containerPort: 80

@@ -1,0 +1,31 @@
+#
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: nginx-daemon
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+
+
+kubectl create ns dev
+# Apply DaemonSet
+kubectl apply -f daemonset.yaml
+# Get DaemonSets
+kubectl get ds
+kubectl get ds -n dev
+kubectl get daemonsets -n dev
+kubectl describe ds nginx-daemonset -n dev
+kubectl get ds nginx-daemonset -n dev -o yaml
+kubectl get pods -n dev
+kubectl get pods -n dev -o wide
+kubectl get pods -n dev -w

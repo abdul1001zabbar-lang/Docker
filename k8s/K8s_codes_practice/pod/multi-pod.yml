@@ -1,0 +1,120 @@
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: multi-pod
+  labels:
+    app: multi-app
+
+spec:
+  containers:
+  - name: ubuntu-container
+    image: ubuntu
+    command: ["sleep","3000"]
+    #  command: ["bash", "-c", "while true; do echo hello; sleep 5; done"]
+
+  - name: nginx-container
+    image: nginx
+    ports:
+    - containerPort: 80
+
+
+#=====================================================
+#kubectl apply -f multi-pod.yml
+#kubectl get pods
+#kubectl describe pod multi-pod
+#kubectl logs multi-pod -c ubuntu-container
+#kubectl logs multi-pod -c nginx-container
+#kubectl exec -it multi-pod -c nginx-container -- bash
+#kubectl exec -it multi-pod -c ubuntu-container -- bash
+#kubectl delete -f multi-pod.yml
+#container names==
+#kubectl get pod multi-pod -o jsonpath='{.spec.containers[*].name}'
+#images name====
+#kubectl get pod multi-pod -o jsonpath='{.spec.containers[*].image}'
+#kubectl get pod multi-pod -o jsonpath='{range .spec.containers[*]}{.name}{" => "}{.image}{"\n"}{end}'
+#=========================
+#ubuntu-container => ubuntu
+#nginx-container => nginx
+#busybox-container => busybox
+#=============================
+
+#==============================
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: nginx-busybox-pod
+  labels:
+    app: nginx-busybox-app
+
+spec:
+  containers:
+  - name: nginx-container
+    image: nginx
+    ports:
+    - containerPort: 80
+
+
+  - name: busybox-container
+    image: busybox
+    command: ["sleep", "3000"]
+
+
+#kubectl apply -f nginx-busybox-pod.yml
+#kubectl get pods
+#kubectl describe pod nginx-busybox-pod
+#kubectl exec -it nginx-busybox-pod -c nginx-container -- bash
+#kubectl exec -it nginx-busybox-pod -c busybox-container -- sh 
+#kubectl logs nginx-busybox-pod -c nginx-container
+#kubectl logs nginx-busybox-pod -c busybox-container 
+#kubectl delete -f nginx-busybox-pod.yml
+
+#==================================
+
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: ubuntu-busybox-pod
+  labels:
+    app: ubuntu-busybox-app
+
+spec:
+  containers:
+  - name : ubuntu-container
+    images: ununtu
+    commnad: ["sleep", "3000"]
+
+
+  -- name: busybox-container
+    image: busybox
+    command: ["sleep", "3000"]
+
+
+#=======================================
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: three-container-pod
+
+spec:
+  containers:
+
+  - name: nginx-container
+    image: nginx
+    ports:
+    - containerPort: 80
+
+  - name: ubuntu-container
+    image: ubuntu
+    command: ["sleep", "3000"]
+
+  - name: busybox-container
+    image: busybox
+    command: ["sleep", "3000"]
+
+================================
+
+

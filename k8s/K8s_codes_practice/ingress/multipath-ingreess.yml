@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+
+metadata:
+  name: multipath-ingress
+
+spec:
+  rules:
+  - host: myapp.local
+    http:
+      paths:
+
+      - path: /nginx
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx-service
+            port: 
+              number: 80
+
+      - path: /flask
+        pathType: Prefix
+        backend:
+          service:
+            name: flask-service
+            port:
+             number: 5000
+
+# http://app.local/nginx
+# http://app.local/flask   

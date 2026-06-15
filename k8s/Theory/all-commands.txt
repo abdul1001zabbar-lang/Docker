@@ -1,0 +1,217 @@
+kubectl cluster-info
+kubectl get nodes
+kubectl get pods
+kubectl get pods -o wide
+kubectl describe pod <pod-name>
+kubectl logs <pod-name>
+kubectl exec -it <pod-name> -- bash
+kubectl apply -f pod.yaml
+kubectl delete pod <pod-name>
+kubectl get all
+
+
+=================================================
+POD COMMANDS
+=================================================
+
+kubectl get pods
+# List all pods
+
+kubectl get pods -o wide
+# Show pod IP and node
+
+kubectl describe pod <pod-name>
+# Detailed pod information
+
+kubectl logs <pod-name>
+# Show pod logs
+
+kubectl logs -f <pod-name>
+# Follow logs
+
+kubectl exec -it <pod-name> -- bash
+# Enter pod shell
+
+kubectl delete pod <pod-name>
+# Delete pod
+
+
+=================================================
+YAML COMMANDS
+=================================================
+
+kubectl apply -f pod.yaml
+# Create/Update resource
+
+kubectl delete -f pod.yaml
+# Delete resource
+
+kubectl get -f pod.yaml
+# View resource
+
+
+=================================================
+DEPLOYMENT COMMANDS
+=================================================
+
+kubectl get deployments
+# List deployments
+
+kubectl create deployment nginx --image=nginx
+# Create deployment
+
+kubectl describe deployment nginx
+# Deployment details
+
+kubectl scale deployment nginx --replicas=3
+# Scale deployment
+
+kubectl rollout restart deployment nginx
+# Restart deployment
+
+kubectl delete deployment nginx
+# Delete deployment
+
+
+=================================================
+REPLICASET COMMANDS
+=================================================
+
+kubectl get rs
+# List ReplicaSets
+
+kubectl describe rs <rs-name>
+# ReplicaSet details
+
+
+=================================================
+SERVICE COMMANDS
+=================================================
+
+kubectl get svc
+# List services
+
+kubectl describe svc <service-name>
+# Service details
+
+kubectl delete svc <service-name>
+# Delete service
+
+
+=================================================
+NAMESPACE COMMANDS
+=================================================
+
+kubectl get namespaces
+# List namespaces
+
+kubectl create namespace dev
+# Create namespace
+
+kubectl delete namespace dev
+# Delete namespace
+
+kubectl get pods -n dev
+# Pods in namespace
+
+
+=================================================
+CONFIGMAP COMMANDS
+=================================================
+
+kubectl get configmaps
+
+kubectl describe configmap <name>
+
+kubectl create configmap myconfig \
+--from-literal=ENV=prod
+
+
+=================================================
+SECRET COMMANDS
+=================================================
+
+kubectl get secrets
+
+kubectl describe secret <name>
+
+kubectl create secret generic db-secret \
+--from-literal=password=admin123
+
+
+=================================================
+EVENTS COMMANDS
+=================================================
+
+kubectl get events
+
+kubectl get events --sort-by=.metadata.creationTimestamp
+
+
+=================================================
+TROUBLESHOOTING COMMANDS
+=================================================
+
+kubectl get all
+# Show all resources
+
+kubectl describe pod <pod-name>
+# Find pod issues
+
+kubectl logs <pod-name>
+# Check application logs
+
+kubectl exec -it <pod-name> -- bash
+# Enter pod
+
+kubectl top pods
+# Pod resource usage
+
+kubectl top nodes
+# Node resource usage
+
+
+=================================================
+USEFUL SHORTCUTS
+=================================================
+
+kubectl get po
+# Pods
+
+kubectl get deploy
+# Deployments
+
+kubectl get svc
+# Services
+
+kubectl get ns
+# Namespaces
+
+kubectl get cm
+# ConfigMaps
+
+kubectl get rs
+# ReplicaSets
+
+
+=================================================
+LEARNING ORDER
+=================================================
+
+1. kubectl cluster-info
+2. kubectl get nodes
+3. kubectl get pods
+4. kubectl describe pod
+5. kubectl logs
+6. kubectl exec
+7. kubectl apply -f
+8. kubectl delete
+9. kubectl get deployments
+10. kubectl get svc
+11. kubectl get configmaps
+12. kubectl get secrets
+13. kubectl get namespaces
+14. kubectl get events
+15. kubectl top pods
+=================================================
+

@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: nginx-pods
+
+
+spec:
+  containers:
+  - name: nginx-container
+    image: nginx
+    ports:
+    - containerPort: 80
+
+
+#kubectl apply -f nginx-pod.yml
+#kubectl get pods
+#kubectl describe pod
+#kubectl get pods -o wide
+#kubectl logs nginx-pods
+#kubectl exec -it nginx-pods -- bash
+#kubectl delete -f nginx-pod.yml
+# kubectl get pod -o wide
+# kubectl exec -it nginx-pod -- bash
+  # hostname -i

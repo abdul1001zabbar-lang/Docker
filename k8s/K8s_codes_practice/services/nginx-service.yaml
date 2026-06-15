@@ -1,0 +1,77 @@
+# ClusterIP (Default ✅)
+#Accessible inside cluster only
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: nginx-sevice
+
+spec:
+  selector:
+    app: nginx-app
+
+  ports:
+  - port: 80
+    targetPort: 80
+
+  type: ClusterIP  
+
+# kubectl apply -f nginx-service.yml
+# kubectl get svc
+kubectl describe svc nginx-service
+
+kubectl delete svc nginx-service
+
+#=============Node Port===========
+#External access via node IP
+
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: nginx-service
+
+spec:
+  selctor:
+    app: nginx-app
+
+  ports:
+  - port: 80
+    targetPort: 80
+    nodePort: 30080
+
+  type: NodePort
+
+#=============Load Balancer=========== 
+# External access via cloud LB
+#Creates public IP
+#
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: nginx-service
+
+spec:
+  selector:
+    name: nginx-app
+  ports:
+  - port: 80 
+    targetPort: 80
+  type: LoadBalancer
+
+#=============External Name=========== 
+#Maps a Kubernetes service to an external DNS name
+# This service acts like a DNS mapping
+
+apiVersion:
+kind: Service
+
+metdata:
+  name: google-service
+
+spec:
+  type: ExternalName
+  externalName: google.com
+
+

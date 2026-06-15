@@ -1,0 +1,209 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+
+metadata:
+  name: multi-host-ingress
+
+spec:
+  ingressClassName: nginx
+
+  rules:
+
+  - host: nginx.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx-service
+            port:
+              number: 80
+
+  - host: flask.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: flask-service
+            port:
+              number: 5000
+
+
+# http://nginx.local
+# http://flask.local
+
+#================================
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+
+metadata:
+  name: web-ingress
+
+spec:
+  ingressClassName: nginx
+
+  rules:
+  - host: web.local
+    http:
+      paths:
+
+      - path: /nginx
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx-service
+            port:
+              number: 80
+
+      - path: /apache
+        pathType: Prefix
+        backend:
+          service:
+            name: apache-service
+            port:
+              number: 80
+
+#http://web.local/nginx
+#http://web.local/apache
+
+
+#======Three app================
+
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+
+metadata:
+  name: multi-app-ingress
+
+spec:
+  ingressClassName: nginx
+
+  rules:
+  - host: app.local
+    http:
+      paths:
+
+      - path: /nginx
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx-service
+            port:
+              number: 80
+
+      - path: /flask
+        pathType: Prefix
+        backend:
+          service:
+            name: flask-service
+            port:
+              number: 5000
+
+      - path: /apache
+        pathType: Prefix
+        backend:
+          service:
+            name: apache-service
+            port:
+              number: 80
+
+# http://app.local/nginx
+# http://app.local/flask
+# http://app.local/apache              
+
+
+#==========Version Routing================
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+
+metadata:
+  name: version-ingress
+
+spec:
+  ingressClassName: nginx
+
+  rules:
+  - host: app.local
+    http:
+      paths:
+
+      - path: /v1
+        pathType: Prefix
+        backend:
+          service:
+            name: app-v1-service
+            port:
+              number: 80
+
+      - path: /v2
+        pathType: Prefix
+        backend:
+          service:
+            name: app-v2-service
+            port:
+              number: 80
+
+# http://app.local/v1
+# http://app.local/v2  
+
+#=========Multiple Hosts + Multiple Paths===========
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+
+metadata:
+  name: multi-host-path-ingress
+
+spec:
+  ingressClassName: nginx
+
+  rules:
+
+  - host: nginx.local
+    http:
+      paths:
+
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx-service
+            port:
+              number: 80
+
+      - path: /test
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx-test-service
+            port:
+              number: 80
+
+  - host: flask.local
+    http:
+      paths:
+
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: flask-service
+            port:
+              number: 5000
+
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: flask-api-service
+            port:
+              number: 5000
+
+# http://nginx.local/
+# http://nginx.local/test
+# http://flask.local/
+# http://flask.local/api

@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: ubuntu-pod
+
+spec:
+  containers:
+  - name: ubuntu-container
+    image: ubuntu
+    command: ["sleep"]
+    args: ["3000"]
+
+
+
+#kubectl apply -f ubuntu-pod.yml
+#kubectl get pods
+#kubectl describe pod ubuntu-pod
+#kubectl logs ubuntu-pod -c ubuntu-container
+#kubectl exec -it ubuntu-pod -c ubuntu-container -- bash
+#kubectl delete -f ubuntu-pod.yml

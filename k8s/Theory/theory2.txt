@@ -1,0 +1,138 @@
+Pod
+- Smallest deployable unit in Kubernetes
+- Runs one or more containers together
+
+Deployment
+- Manages Pods
+- Provides scaling, rolling updates, and self-healing
+
+ReplicaSet
+- Ensures the desired number of Pod replicas are running
+
+Service
+- Exposes applications on the network
+- Provides stable access to Pods
+
+ConfigMap
+- Stores configuration data
+- Keeps configuration separate from application code
+
+Secret
+- Stores sensitive information
+- Used for passwords, tokens, API keys
+
+Namespace
+- Logical separation of resources
+- Helps organize and isolate workloads
+
+Volume
+- Provides storage for Pods
+- Data can survive container restarts
+
+Ingress
+- Manages external HTTP/HTTPS access
+- Routes traffic to Services
+
+Node
+- Worker machine in Kubernetes
+- Runs Pods
+
+Cluster
+- Collection of Nodes managed by Kubernetes
+
+kube-apiserver
+- Entry point to Kubernetes
+- Receives all kubectl requests
+
+etcd
+- Kubernetes database
+- Stores cluster state and configuration
+
+Scheduler
+- Decides on which Node a Pod should run
+
+Controller Manager
+- Monitors cluster state
+- Maintains desired state
+
+kubelet
+- Agent running on every Node
+- Manages Pods and containers
+
+kube-proxy
+- Handles Pod networking
+- Maintains network rules on Nodes
+
+Helm
+- Package manager for Kubernetes
+- Simplifies application deployment
+
+Label
+- Key-value pair attached to resources
+- Used for organization and selection
+
+Selector
+- Selects resources based on labels
+
+ConfigMap
+- Stores non-sensitive configuration data
+
+Secret
+- Stores sensitive data securely
+
+PersistentVolume (PV)
+- Actual storage resource in the cluster
+
+PersistentVolumeClaim (PVC)
+- Request for storage by a Pod
+
+StatefulSet
+- Manages stateful applications
+- Provides stable Pod identities
+
+
+
+DaemonSet
+- Runs one Pod on every Node
+
+Job
+- Runs a task until completion
+
+CronJob
+- Runs Jobs on a schedule
+
+Network Policy
+- Controls communication between Pods
+
+Resource Requests
+- Minimum CPU and memory required
+
+Resource Limits
+- Maximum CPU and memory allowed
+
+Liveness Probe
+- Checks if container is healthy
+- Restarts container if unhealthy
+
+Readiness Probe
+- Checks if container is ready
+- Receives traffic only when ready
+
+
+Pod              → v1
+Service          → v1
+ConfigMap        → v1
+Secret           → v1
+Namespace        → v1
+PV               → v1
+PVC              → v1
+
+Deployment       → apps/v1
+ReplicaSet       → apps/v1
+StatefulSet      → apps/v1
+DaemonSet        → apps/v1
+
+Ingress          → networking.k8s.io/v1
+Job              → batch/v1
+CronJob          → batch/v1
+HPA              → autoscaling/v2

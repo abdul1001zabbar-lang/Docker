@@ -1,0 +1,62 @@
+#A ConfigMap stores configuration data separately from your application.
+
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: app-config
+
+data:
+  ENV: production
+  APP_NAME: nginx-app
+  LOG_LEVEL: info
+
+# Inside the container:
+#echo $ENV
+# kubectl apply -f nginx-configmap.yml
+#kubectl delete -f nginx-configmap.yml
+###############
+#For interviews and real projects, envFrom is often used when you want all configuration values, while configMapKeyRef is used when you only need a few specific keys.
+env:
+- name: ENV
+  valueFrom:
+    configMapKeyRef:
+      name: app-config
+      key: ENV
+
+envFrom:
+- configMapRef:
+    name: app-config
+#====================
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: nginx-pod
+
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+
+    env:
+    - name: ENV
+      valueFrom:
+        configMapKeyRef:
+          name: app-config
+          key: ENV
+#======================
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: nginx-pod
+
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+
+    envFrom:
+    - configMapRef:
+        name: app-config          

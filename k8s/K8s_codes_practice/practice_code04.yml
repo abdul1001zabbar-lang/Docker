@@ -1,0 +1,231 @@
+# =========================
+# NAMESPACE
+# =========================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dev
+
+---
+# =========================
+# CONFIGMAP
+# =========================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: flask-config
+  namespace: dev
+data:
+  APP_ENV: production
+  APP_DEBUG: "False"
+
+---
+# =========================
+# SECRET
+# =========================
+apiVersion: v1
+kind: Secret
+metadata:
+  name: flask-secret
+  namespace: dev
+type: Opaque
+data:
+  username: YWRtaW4=
+  password: YWRtaW4xMjM=
+
+---
+# =========================
+# PVC
+# =========================
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: flask-pvc
+  namespace: dev
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+# =========================
+# DEPLOYMENT
+# =========================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-deployment
+  namespace: dev
+spec:
+  replicas: 3
+
+  selector:
+    matchLabels:
+      app: flask
+
+  template:
+    metadata:
+      labels:
+        app: flask
+
+    spec:
+
+      initContainers:
+      - name: init
+        image: busybox
+        command: ["sh","-c","echo Flask Init Done"]
+
+      containers:
+      - name: flask
+        image: flask-app:v1
+
+        ports:
+        - containerPort: 5000
+
+        env:
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: flask-secret
+              key: username
+
+        envFrom:
+        - configMapRef:
+            name: flask-config
+
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+
+        startupProbe:
+          httpGet:
+            path: /
+            port: 5000
+
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 5000
+
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 5000
+
+        volumeMounts:
+        - name: storage
+          mountPath: /app/data
+
+      volumes:
+      - name: storage
+        persistentVolumeClaim:
+          claimName: flask-pvc
+
+---
+# =========================
+# SERVICE
+# =========================
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-service
+  namespace: dev
+spec:
+  selector:
+    app: flask
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: ClusterIP
+
+---
+# =========================
+# INGRESS
+# =========================
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: flask-ingress
+  namespace: dev
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: flask.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: flask-service
+            port:
+              number: 80
+
+---
+# =========================
+# HPA
+# =========================
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: flask-hpa
+  namespace: dev
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: flask-deployment
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+
+---
+# =========================
+# JOB
+# =========================
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: flask-job
+  namespace: dev
+spec:
+  template:
+    spec:
+      containers:
+      - name: flask-job
+        image: flask-app:v1
+        command: ["python","app.py"]
+      restartPolicy: Never
+
+---
+# =========================
+# CRONJOB
+# =========================
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: flask-cron
+  namespace: dev
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: flask-cron
+            image: flask-app:v1
+            command: ["python","app.py"]
+          restartPolicy: Never

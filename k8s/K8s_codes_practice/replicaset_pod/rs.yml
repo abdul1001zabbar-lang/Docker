@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+
+metadata:
+  name: nginx-rs
+  labels:
+    app: nginx-app
+
+spec:
+  replicas: 3
+
+  selector:
+    matchLabels:
+      app: nginx-app
+
+  template:
+    metadata:
+      labels:
+        app: nginx-app
+
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx
+        ports:
+        - containerPort: 80
+
+
+#In replicaset each pod have diffrent ip address 
+# kubectl apply -f rs.yml
+# kubectl get pods
+# kubectl delete pod <pod-name>
+# kubectl scale rs nginx-rs --replicas=5
+# kubectl scale rs nginx-rs --replicas=2
+# kubectl exec -it <pod-name> -- bash
+# kubectl delete rs nginx-rs
+# kubectl delete rs --alll
+#kubectl get pods -o wide ------> get ip address 
+#kubectl get pod nginx-66mln---specific pod
+#kubectl -exec -it nginx-fvnln -- bash
+#do ping using ip address
+
