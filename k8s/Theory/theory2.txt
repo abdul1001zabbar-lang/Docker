@@ -34,8 +34,7 @@ Ingress
 - Routes traffic to Services
 
 Node
-- Worker machine in Kubernetes
-- Runs Pods
+- A node is a worker machine (physical or virtual) that runs Pods in a Kubernetes cluster.
 
 Cluster
 - Collection of Nodes managed by Kubernetes

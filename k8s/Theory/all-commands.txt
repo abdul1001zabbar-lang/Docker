@@ -215,3 +215,6 @@ LEARNING ORDER
 15. kubectl top pods
 =================================================
 
+kubectl label node worker1 env=prod
+kubectl label node worker2 env=dev
+

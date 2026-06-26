@@ -1,0 +1,46 @@
+---
+Network-Policy:-
+A NetworkPolicy controls which Pods can communicate with other Pods.
+It defines allowed traffic rules between pods
+
+Types of Rules:-
+✅ 1. Ingress (Incoming traffic):- Who can access this pod
+✅ 2. Egress (Outgoing traffic):- Where this pod can access
+Ingress = incoming
+Egress = outgoing
+
+Default Behavior
+❗ Without NetworkPolicy → ALL traffic allowed ✅
+❗ With NetworkPolicy → Only defined traffic allowed ✅
+
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-frontend-to-backend
+spec:
+  podSelector:
+    matchLabels:
+      app: backend
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: frontend
+---
+#denu-all trafic
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+---
+

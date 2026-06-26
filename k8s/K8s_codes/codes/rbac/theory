@@ -1,0 +1,24 @@
+
+RBAC → Controls who can do what in Kubernetes (authorization system)
+
+ServiceAccount → Creates an identity for applications (pods) to access cluster
+
+Role → Defines permissions for resources inside a specific namespace
+
+RoleBinding → Assigns a Role to users or ServiceAccounts in a namespace
+
+ClusterRole → Defines permissions at cluster level (all namespaces)
+
+ClusterRoleBinding → Assigns ClusterRole to users or ServiceAccounts across cluster
+
+ResourceQuota → Limits total resource usage (CPU, memory, pods) in a namespace
+
+LimitRange → Sets default and max/min resource limits per container/pod
+
+NetworkPolicy → Controls network traffic between pods (allow/deny communication)
+
+PodDisruptionBudget → Ensures minimum pods stay running during voluntary disruptions
+
+ServiceAccount in Kubernetes
+A ServiceAccount is an identity used by Pods to communicate with the Kubernetes API.
+It is commonly used with RBAC (Roles and RoleBindings) to grant specific permissions to workloads running inside the cluster.

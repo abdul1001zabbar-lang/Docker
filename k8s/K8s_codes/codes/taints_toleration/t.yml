@@ -1,0 +1,86 @@
+---
+(Taint)
+# Node says:
+# "Stay away!"
+
+---
+(Toleration)
+# Pod says:
+# "I have permission."
+
+---
+# Taint:- A taint is a "Keep Out" sign on a node.
+# "I will not accept Pods"
+# Applied on Node.
+# Blocks Pods from scheduling.
+# Node1 ❌
+# Node2 ✅
+# Node3 ✅
+---
+# Toleration:-"I am allowed to enter Node1"
+# Applied on Pod.
+# Allows Pod to run on tainted Node.
+
+# Note: Taint is like block entry but if have valid pass can enter like VIP pass.
+#       Toleration i have VIP pass to entry the gate.
+
+
+#Key and Value are NOT fixed.
+# kubectl taint nodes worker1 dedicated=prod:NoSchedule
+# then use
+# toleration   → dedicated=prod 
+---
+#add taint
+kubectl taint nodes worker-node1 env=prod:NoSchedule
+kubectl describe node controlplane
+   ####app=dev:NoSchedule
+
+# effect:-
+# NoSchedule       → Production nodes---only tolerant pod allowed
+# PreferNoSchedule → Special-purpose nodes-- can run pods if needed
+# NoExecute        → Unhealthy/Maintenance nodes--no exctution
+# kubectl taint nodes worker1 env=prod:NoSchedule
+# kubectl taint nodes worker2 gpu=true:PreferNoSchedule
+# kubectl taint nodes worker3 maintenance=true:NoExecute
+
+#operator:-
+#Equal:- Match both key and value.
+#Exists:- Match only key.
+
+---
+#remove taint
+kubectl taint nodes controlplane app=dev:NoSchedule-   
+
+
+
+---
+#Step 2: Pod Without Toleration
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: nginx-pod
+
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+
+---
+#Step 2: Pod With Toleration
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: nginx-pod
+
+spec:
+  tolerations:
+  - key: "app"
+    operator: "Equal"
+    value: "dev"
+    effect: "NoSchedule"
+
+  containers:
+  - name: nginx
+    image: nginx

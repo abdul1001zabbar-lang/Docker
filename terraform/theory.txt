@@ -1,0 +1,303 @@
+Infrastructure as Code (IaC):-
+Pocess of managing and provisioning infrastructure using code instead of manual configuration.
+
+IaC provides automation, consistency, repeatability, version control, and reduces human errors.
+
+Benifits:-
+✓ Multi-cloud support
+✓ Automation
+✓ Version control
+✓ Reusable modules
+✓ Faster deployments
+✓ State management
+✓ CI/CD integration
+✓ Consistent infrastructure
+---
+Terraform Architecture:-
+
+Terraform CLI
+     ↓
+Provider
+     ↓
+Cloud API
+     ↓
+Resources
+
+---------------------------------------
+Provider:-
+A Provider is a Terraform plugin that allows Terraform to interact with a specific platform or service.
+“Provider = bridge between Terraform and cloud”
+Terraform → writes code
+Provider → talks to cloud (Azure/AWS/GCP)
+Azure    → hashicorp/azurerm
+
+provider "azurerm" {
+  features {}
+}
+
+
+--------------------------------------
+AzureRM Provider:-
+AzureRM (Azure Resource Manager) is the Terraform provider used to manage Azure resources.
+
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 4.0"
+    }
+  }
+}
+
+provider "azurerm" {
+  features {}
+  subscription_id = "xxxx"
+}
+
+
+----------------------------
+1.Resource Block:- used to define infrastructure (VM, VNet, RG, etc.) in Terraform
+azurerm_resource_group → resource type
+
+2.Resource Attributes:-properties/values inside a resource block
+
+resource "azurerm_virtual_network" "vnet1" {
+  name                = "my-vnet"      # attribute
+  address_space       = ["10.0.0.0/16"] # attribute
+  location            = "East US"      # attribute
+  resource_group_name = "my-rg"        # attribute
+}
+
+✅ Required attributes → must provide
+✅ Optional attributes → optional
+✅ Computed attributes → auto-generated (like IDs)
+
+3. Resource Dependencies:- relationship between resources (one resource depends on another)
+
+resource "azurerm_resource_group" "rg1" {
+  name     = "my-rg"
+  location = "East US"
+}
+
+resource "azurerm_virtual_network" "vnet1" {
+  name                = "my-vnet"
+  location            = "East US"
+  resource_group_name = azurerm_resource_group.rg1.name
+}
+---------------------------
+1.Input Variables:-parameters used to make Terraform code reusable & dynamic
+instead of harcoding use variables
+
+2.variables.tf:-This file is used to declare variables.
+
+3.terraform.tfvars:-file where values of variables are assigned
+if do  --->terraform apply --->terraform.tfstate (created)
+inside in stores:-
+Resource Group ID/VNet ID/Subnet ID/Public IP ID/NIC ID/VM ID
+
+4.main.tf → uses variables
+
+5.Outputs:- Outputs display information about resources after Terraform creates them.
+6.Output Values:-actual data returned from resources/modules
+
+
+-----
+#main.tf
+resource "azurerm_resource_group" "rg" {
+  name     = var.rg_name
+  location = var.location
+}
+#variable.tf
+variable "rg_name" {}
+variable "location" {}
+
+#terraform.tfvars
+rg_name  = "demo-rg"
+location = "Central India"
+
+
+#outputs.tf
+
+output "resource_group_name" {
+  value = azurerm_resource_group.rg.name
+}
+
+----------------------------------------------------------------------
+State file:- file that stores the current state of your infrastructure
+Terraform stores information about all created resources in a State File.
+State file: Tracks real infrastructure
+Purpose: Maintain mapping between code & resources
+Location: terraform.tfstate
+---
+resource "azurerm_resource_group" "rg" {
+  name     = "demo-rg"
+  location = "Central India"
+}
+
+terraform apply
+terraform.tfstate
+
+{
+  "resources": [
+    {
+      "type": "azurerm_resource_group",
+      "name": "rg"
+    }
+  ]
+}
+
+-----------------------------------------------------------------------
+terraform init            :- Initialize Terraform project
+terraform validate        :- Validate Terraform configuration
+terraform fmt             :- Format Terraform code
+terraform plan            :- Preview infrastructure changes
+terraform apply           :- Create/Update infrastructure
+terraform destroy         :- Delete infrastructure
+terraform show            :- Show Terraform state details
+terraform output          :- Display output values
+terraform state list      :- List resources in state file
+terraform refresh         :- Sync state with infrastructure
+terraform version         :- Check Terraform version
+terraform providers       :- Show configured providers
+terraform workspace list  :- List workspaces
+terraform workspace new dev:- Create new workspace
+terraform workspace select dev:- Switch workspace                    
+terraform taint <resource>:- Mark resource for recreation                     
+terraform untaint <resource> :- Remove taint from resource
+terraform import <resource> <id>:- Import existing resource
+terraform graph :- Generate dependency graph
+terraform state show <resource>:- Show resource details from state
+terraform state rm <resource>:- Remove resource from state
+
+-----------------------------------------------------------------------
+terraform init
+      ↓
+Downloads AzureRM Provider
+
+terraform plan
+      ↓
+Reads:
+main.tf
+variables.tf
+terraform.tfvars
+
+      ↓
+Builds Execution Plan
+
+terraform apply
+      ↓
+Creates Resources in Order
+
+
+-----
+State File Flow
+
+After: terraform apply
+
+Terraform creates: terraform.tfstate
+Inside it stores:Resource Group ID/VNet ID/Subnet ID/Public IP ID/NIC ID/VM ID
+
+Next time when you run:   terraform plan
+
+Terraform compares and decides:- Create/Update/Delete/No Change
+main.tf
+      VS
+terraform.tfstate
+
+
+
+---
+terraform state list
+
+o/p:-
+azurerm_resource_group.rg
+azurerm_virtual_network.vnet
+azurerm_subnet.subnet
+azurerm_public_ip.public_ip
+azurerm_network_interface.nic
+azurerm_linux
+
+---
+terraform output
+terraform output public_ip_address
+-------------------------------------------------------------------
+Resource Groups:- A logical container that holds Azure resources.
+Group related resources (VM, VNet, Storage)
+
+VNet = private network in Azure cloud (like your datacenter network)
+Defined using CIDR → 10.0.0.0/16
+
+Subnet = logical division of VNet (divide network into smaller parts)
+Divide network → web / app / db
+
+NIC = network adapter that connects a VM to a VNet (network)
+
+NSG = Azure firewall to control traffic (allow/deny)(Firewall rules)
+Source IP/Source Port/Destination IP/Destination Port/Protocol
+✅ Example Rules
+Allow SSH (22)
+Allow HTTP (80)
+Deny all others
+
+Route Table = controls how traffic flows inside VNet
+Control traffic routing
+Custom routes
+
+Public IP = IP to access resources from internet
+✅ Types:-Static → fixed IP
+           Dynamic → changes
+✅ Example
+Attached to VM / LB
+Assign to VM → SSH access
+Attach to Load Balancer  
+
+Load Balancer = distributes traffic across multiple servers
+Works at Network Layer (L4)
+Protocol- tcp/udp
+2 VMs → LB → distribute traffic
+
+Application Gateway = web traffic load balancer (HTTP/HTTPS)
+URL-based routing
+Path-based routing
+proticol:- HTTP/HTTPS
+
+Internet
+   ↓
+Application Gateway / Load Balancer
+   ↓
+Web Subnet
+   ↓
+App Subnet
+   ↓
+DB Subnet
+
+Resource Group: Container for resources
+VNet: Private Azure network
+Subnet: Network segmentation
+NSG: Firewall rules
+Route Table: Traffic control
+Public IP: Internet access
+Load Balancer: L4 traffic distribution
+App Gateway: L7 smart routing
+VM: Compute/server
+Storage: Data storage
+
+
+VM = compute resource (like server in cloud)
+Linux / Windows
+Requires:VNet/Subnet/NIC
+Can access via:
+SSH (Linux)
+RDP (Windows)
+
+Storage Account = service to store data in Azure
+Types of Storage:
+Blob → files/images
+File → shared file system
+Disk → VM disks
+Queue / Table → app data
+
+
+
+-------------------------------------------------
+

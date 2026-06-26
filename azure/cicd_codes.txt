@@ -1,0 +1,107 @@
+flask-app/
+│
+├── app.py
+├── requirements.txt
+├── Dockerfile
+├── deployment.yaml
+├── service.yaml
+└── azure-pipelines.yml
+---app.py
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Hello from AKS"
+
+app.run(host="0.0.0.0", port=5000)
+---requirements.txt
+flask
+---Dockerfile
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+
+RUN pip install -r requirements.txt
+
+COPY . .
+
+EXPOSE 5000
+
+CMD ["python","app.py"]
+
+---deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: flask-app
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: flask-app
+
+  template:
+    metadata:
+      labels:
+        app: flask-app
+
+    spec:
+      containers:
+      - name: flask-app
+        image: abdulzabbaracr01.azurecr.io/flask-app:latest
+
+        ports:
+        - containerPort: 5000
+
+---service.yaml
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: flask-service
+
+spec:
+  selector:
+    app: flask-app
+
+  type: LoadBalancer
+
+  ports:
+  - port: 80
+    targetPort: 5000
+----azure-pipelines.yml
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+
+- task: Docker@2
+  displayName: Build Image
+
+  inputs:
+    command: buildAndPush
+    repository: flask-app
+    Dockerfile: Dockerfile
+    containerRegistry: acr-service-connection
+    tags: latest
+
+- task: KubernetesManifest@1
+  displayName: Deploy to AKS
+
+  inputs:
+    action: deploy
+    kubernetesServiceConnection: aks-service-connection
+    manifests: |
+      deployment.yaml
+      service.yaml
+---          

@@ -1,0 +1,34 @@
+---
+Run pod in different nodes
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: anti-affinity-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - myapp
+            topologyKey: kubernetes.io/hostname
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80

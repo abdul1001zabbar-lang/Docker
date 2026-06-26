@@ -1,0 +1,22 @@
+---
+👉 Init container = runs BEFORE main container starts
+✅ It must complete successfully first
+➡️ Only then main app container will start
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: init-container-example
+spec:
+  initContainers:
+  - name: wait-for-db
+    image: busybox
+    command: ["sh", "-c", "until nc -z db-service 5432; do echo waiting for db; sleep 5; done"]
+
+  containers:
+  - name: app
+    image: nginx
+    ports:
+    - containerPort: 80

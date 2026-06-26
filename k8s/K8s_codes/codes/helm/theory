@@ -1,0 +1,22 @@
+Helm = Package Manager for Kubernetes
+Helm manages Kubernetes applications
+Instead of writing many YAML files manually (deployment + service + ingress…),
+Helm packages everything into one unit → Chart
+
+
+nginx-chart/
+│
+├── Chart.yaml
+├── values.yaml
+├── charts/
+└── templates/
+      ├── deployment.yaml
+      ├── service.yaml
+      ├── ingress.yaml
+      └── hpa.yaml
+
+
+
+---
+helm install myapp ./chart
+helm install my-nginx ./nginx-chart

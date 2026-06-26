@@ -1,0 +1,25 @@
+ What is Docker Compose?
+
+Docker Compose is used to define and run
+multiple Docker containers using a single
+docker-compose.yml file.
+
+
+
+-------------------
+
+docker compose up -d               # Start application
+docker compose ps                  # Check running containers
+docker compose logs                # View logs
+docker compose exec web bash       # Access container
+docker compose restart             # Restart services
+docker compose stop                # Stop services
+docker compose down                # Remove containers
+docker compose build               # Build images
+docker compose pull                # Pull images
+docker compose logs                # Show logs
+docker compose logs -f             # Follow logs
+docker compose kill                # Force stop containers
+docker compose rm                  # Remove stopped containers
+docker compose down --volumes      # Remove containers and volumes
+docker compose up --scale web=3    # Scale service

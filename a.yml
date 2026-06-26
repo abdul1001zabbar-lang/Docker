@@ -1,38 +1,261 @@
-
-
-
-apiVersion: batch/v1
-kind: Job
-
+---
+apiVerison: v1
+kind: Namespace
 metadata:
-  name: job-demo
+  name: dev
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: dev-sa
+  namespace: dev
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: dev
+  labels:
+    app: nginx-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx-app
+  template:
+    metadata:
+      labels:
+        app: nginx-app
+    spec:
+      containers:
+      - name: nginc-c1
+        image: nginx
+        ports:
+        - containerPort: 80
 
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+
+        statupProbe:
+          httpGet:
+            path: /
+            port: 80
+          failureThreshold: 30
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 5
+
+        env:
+        - name: ADB_USERNAME
+          valueFrom:
+            sceretKeyRef:
+              name: nginx-secret
+              key: username
+        - name: ADB_PASSWORD
+          valueFrom:
+            sceretKeyRef:
+              name: nginx-secret
+              key: password
+
+        volumeMounts:
+        - name: nginx-config-volume
+          mountPath: /usr/share/nginx/html
+        - name: nginx-storage
+          mountPath: /usr/share/nginx/uploads
+      volumes:
+      - name: nginx-config-volume
+        configMap:
+          name: nginx-configmap
+      - name: nginx-storage
+        persistentVolumeClaim:
+          claimName: nginx-pvc
+----
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+  namespace: dev
+  labels:
+    app: nginx-app
+spec:
+  type: ClusterIP
+  selector:
+    app: nginx-app
+  ports:
+  - port: 80
+    targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-ingress
+  namespace: dev
+  labels:
+    app: nginx-app
+spec:
+- host: myapp.local
+  http:
+    paths:
+    - path: /
+      pathType: Prefix
+      backend:
+        service:
+          name: nginx-service
+          port:
+            number: 80
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaling
+metadata:
+  name: nginx-hpa
+  namespace: dev
+  labels:
+    app: nginx-app                     
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nginx-app
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 90
+---
+kubcectl taints nodes controlplane env:prod:NoScedule
+
+---
+spec:
+  toleartion:
+  - key: env
+    operator: "Equal"
+    values: "prod"
+    effect: "Noschedule"
+---
+spec:
+  nodeSelctor:
+    env: prod
+    region: mumbai
+    disktype: ssd
+    cpu: high
+    memory: "32gb"
+    purpose: monitoring
+    role: database
+---
+spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchdedulingIgnoreDuringExecutions:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: env
+            operator: In
+            values:
+            - prod
+            - test
+        - matchExpressions:
+          - key: region
+            operator: In
+            values:
+            - mumbai
+---
+spec:
+  affinity:
+    podAffinity:
+      requiredDuringSchdedulingIgnoreDuringExecutions:
+      - labelSelector:
+          matchExpressions:
+          - key: env
+            operator: In
+            values:
+            - prod
+            - test
+          matchExpressions:
+          - key: region
+            operator: In
+            values:
+            - mumbai
+---
+spec:
+  serviceName: nginx-service
+  replicas: 3
+  selctor:
+    matchLabels:
+      app: nginx-app
+---
 spec:
   template:
     spec:
-      containers:
-      - name: job
+      container:
+      - name: busybox
         image: busybox
-        command: ["echo","Hello Job"]
-
+        command: ["echo","Hello Docker"]
       restartPolicy: Never
 ---
-apiVersion: batch/v1
-kind: CronJob
-
-metadata:
-  name: cron-demo
-
 spec:
   schedule: "*/5 * * * *"
-
-  jobTemplate:
+  jobtemplate:
     spec:
       template:
         spec:
-          containers:
-          - name: cron
-            image: busybox
-            command: ["echo","Hello CronJob"]
+---
+apiVerions: rabc.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pod-reader
+  namespace: dev
+  labels:
+    app: nginx-app
+rules:
+- apiGroups: [""]
+  resource: ["pods"]
+  verbs:
+  - list
+  - watch
+--- 
+apiVerions: rabc.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pod-reader-binding
+  namespace: dev
+  labels:
+    app: nginx-app     
+subjects:
+  kind: ServiceCAoount
+  name: dev-sa
+  namespace: dev
+roleRef:
+  apiGroups: rabc.authorization.k8s.io
+  kind: Role
+  name: pod-reader
 
-          restartPolicy: Never
+
+
+
+
+
+
+
+                                                                       
+
+
+

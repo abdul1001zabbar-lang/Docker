@@ -1,0 +1,120 @@
+# =========================
+# Chart.yaml
+# =========================
+apiVersion: v2
+name: nginx-chart
+description: Nginx Helm Chart
+version: 1.0.0
+appVersion: "1.25"
+ 
+# =========================
+# values.yaml
+# =========================
+ 
+replicaCount: 3
+ 
+image:
+  repository: nginx
+  tag: latest
+ 
+service:
+  type: ClusterIP
+  port: 80
+ 
+ingress:
+  host: nginx.local
+ 
+# =========================
+# templates/deployment.yaml
+# =========================
+ 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: {{ .Values.replicaCount }}
+ 
+  selector:
+    matchLabels:
+      app: nginx
+ 
+  template:
+    metadata:
+      labels:
+        app: nginx
+ 
+    spec:
+      containers:
+      - name: nginx
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+ 
+        ports:
+        - containerPort: 80
+ 
+---
+# =========================
+# templates/service.yaml
+# =========================
+ 
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+ 
+spec:
+  selector:
+    app: nginx
+ 
+  ports:
+  - port: {{ .Values.service.port }}
+    targetPort: 80
+ 
+  type: {{ .Values.service.type }}
+ 
+---
+# =========================
+# templates/ingress.yaml
+# =========================
+ 
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+ 
+metadata:
+  name: nginx-ingress
+ 
+spec:
+  rules:
+  - host: {{ .Values.ingress.host }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+ 
+        backend:
+          service:
+            name: nginx-service
+            port:
+              number: {{ .Values.service.port }}
+ 
+# Create chart
+helm create nginx-chart
+ 
+# Install
+helm install my-nginx ./nginx-chart
+ 
+# Verify
+kubectl get pods
+kubectl get svc
+kubectl get ingress
+helm list
+ 
+# Upgrade
+helm upgrade my-nginx ./nginx-chart
+ 
+# Rollback
+helm rollback my-nginx 1
+ 
+# Delete
+helm uninstall my-nginx
+ 

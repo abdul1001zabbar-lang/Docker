@@ -1,0 +1,64 @@
+Create Resource Group
+Resource Group : my-rg
+Region         : Central India
+---
+Create Azure Container Registry (ACR)
+Registry Name : abdulzabbaracr01
+SKU           : Basic
+Resource Group: my-rg
+---
+Create AKS Cluster
+Cluster Name   : my-aks
+Node Pool Name : nodepool1
+Node Count     : 1
+VM Size        : Standard_B2s
+---
+Attach ACR to AKS
+AKS
+ ↓
+Settings
+ ↓
+Integrations
+ ↓
+Container Registry
+---
+Create Repository
+flask-app
+push files in gituhub
+---
+Azure DevOps
+create project
+aks-demo
+
+---
+Service Connections
+
+Project Settings
+ ↓
+Service Connections
+ ↓
+Create
+ ↓
+Docker Registry
+ ↓select
+Azure Container Registry
+ ↓select
+abdulzabbaracr01
+↓give name
+acr-service-connection
+
+---Create Pipeline
+Azure DevOps
+ ↓
+Pipelines
+ ↓
+New Pipeline
+ ↓
+GitHub
+ ↓select
+flask-app
+ ↓azure devops detects
+azure-pipelines.yml
+
+
+

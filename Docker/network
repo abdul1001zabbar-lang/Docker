@@ -1,0 +1,70 @@
+
+Docker Network allows containers to communicate with each other
+and with the outside world.
+
+Network Types
+bridge   → Default network for containers
+host     → Container shares host network
+none     → No networking
+overlay  → Multi-host networking (Docker Swarm)
+macvlan  → Container gets its own MAC/IP on LAN
+-------------
+docker network ls                        # List networks
+
+docker network create mynetwork          # Create network
+
+docker network inspect mynetwork         # Inspect network
+
+docker run --network mynetwork nginx     # Run container in network
+
+docker network connect mynetwork nginx   # Connect existing container
+
+docker network disconnect mynetwork nginx # Disconnect container
+
+docker network rm mynetwork              # Delete network
+
+docker network prune                     # Delete unused networks
+
+----------------------
+docker network create app-network
+
+docker run -d \
+--name flask-c1 \
+--network app-network \
+flask-app
+
+docker run -d \
+--name nginx-c1 \
+--network app-network \
+nginx
+
+----------------------
+
+docker network create app-network
+
+docker run -d \
+--name mysql-c1 \
+--network app-network \
+-e MYSQL_ROOT_PASSWORD=password123 \
+mysql:8
+
+docker run -d \
+--name flask-c1 \
+--network app-network \
+flask-app
+
+--------------------------
+docker network create redis-net
+
+docker run -d \
+--name redis-c1 \
+--network redis-net \
+redis
+
+docker run -d \
+--name python-c1 \
+--network redis-net \
+python:3.11
+
+
+----------------------------

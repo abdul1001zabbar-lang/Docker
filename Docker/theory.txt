@@ -1,0 +1,201 @@
+Docker = platform used to build, run, and manage applications in containers [docs.docker.com]
+ Docker = pack your app + dependencies together
+ App + Java/Python + libraries + configs → Docker Container
+
+ Before Docker:
+
+Developer Laptop
+      │
+App works
+      │
+      ▼
+Production Server
+      │
+Missing Python
+Wrong Java Version
+Missing Libraries
+Application Fails ❌
+
+After Docker:
+
+Developer
+     │
+Build Docker Image
+     │
+     ▼
+Docker Container
+     │
+Runs Anywhere ✅
+
+How Docker Works
+Application
+      │
+Dockerfile
+      │
+docker build
+      │
+Docker Image
+      │
+docker run
+      │
+Docker Container
+--------------------------------
+              Docker Client
+             (docker commands)
+                     │
+                     ▼
+              Docker Daemon
+                 (dockerd)
+                     │
+        ┌────────────┼────────────┐
+        │            │            │
+        ▼            ▼            ▼
+    Image Store   Containers   Networks
+                     │
+                   Volumes
+---------------------------------------
+
+Docker Image:-A Docker Image is a read-only template used to create containers.
+Contains:Code/Dependencies/Runtime
+✅ Example: nginx image
+
+Docker Container:-A Container is a running instance of an image.
+docker run nginx
+
+Docker Registry:-A Docker Registry stores Docker Images.
+Docker Network:-Docker Networks allow containers to communicate.
+Docker Volume:-A Docker Volume is used to persist data even after a container is deleted.
+Types of Storage
+1. Named Volume
+2. Bind Mount (Local Volume)
+3. Anonymous Volume
+
+
+Dockerfile:-A Dockerfile is a text file that contains instructions to build a Docker image.
+
+
+
+docker run do:-docker run = pull + create + start
+-------------------------------------------
+# Docker Images & Containers (One Sheet)
+
+# 1. Pull Image
+docker pull nginx
+docker pull ubuntu
+docker pull python:3.11
+
+# List Images
+docker images
+
+# 2. Run Container
+docker run nginx
+docker run -d nginx
+docker run -d --name nginx-c1 nginx
+
+# 3. List Running Containers
+docker ps
+
+# 4. List All Containers
+docker ps -a
+
+# 5. Stop Container
+docker stop nginx-c1
+
+# 6. Start Container
+docker start nginx-c1
+
+# 7. Restart Container
+docker restart nginx-c1
+
+# 8. Remove Container
+docker rm nginx-c1
+docker rm -f nginx-c1
+
+# 9. Remove Image
+docker rmi nginx
+docker rmi -f nginx
+
+# 10. Inspect Container
+docker inspect nginx-c1
+
+# 11. View Logs
+docker logs nginx-c1
+docker logs -f nginx-c1
+
+# 12. Execute Inside Container
+docker exec -it nginx-c1 bash
+docker exec -it ubuntu-c1 bash
+docker exec -it alpine-c1 sh
+docker exec -it busybox-c1 sh
+
+# 13. View Running Processes
+docker top nginx-c1
+
+# 14. View Resource Usage
+docker stats
+
+# 15. Container Lifecycle
+
+Docker Image
+      │
+docker run
+      │
+Running Container
+      │
+docker stop
+      │
+Stopped Container
+      │
+docker start
+      │
+Running Container
+      │
+docker rm
+      │
+Deleted
+
+---------------------------------
+
+d1. Create Volume
+docker volume create my-volume
+
+# 2. List Volumes
+docker volume ls
+
+# 3. Inspect Volume
+docker volume inspect my-volume
+
+# 4. Remove Volume
+docker volume rm my-volume
+
+# 5. Remove Unused Volumes
+docker volume prune
+
+# 6. Use Named Volume
+
+docker run -d \
+--name nginx-c1 \
+-v my-volume:/usr/share/nginx/html \
+nginx
+
+-----
+# 7. Use Local Folder (Bind Mount)
+
+docker run -d \
+--name nginx-c1 \
+-v $(pwd)/html:/usr/share/nginx/html \
+nginx
+
+or
+
+docker run -d \
+-v /home/ubuntu/html:/usr/share/nginx/html \
+nginx
+
+Host Folder
+/home/ubuntu/html
+        │
+        ▼
+Container
+/usr/share/nginx/html
+

@@ -1,12 +1,16 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dev
+---
 apiVersion: v1
 kind: Pod
-
 metadata:
   name: nginx-pod
   namespace: dev
   labels:
     app: nginx-app
-
 spec:
   containers:
   - name: nginx-container
@@ -15,25 +19,22 @@ spec:
     - containerPort: 80
 ---
 apiVersion: apps/v1
-kind: ReplicaSet
-
+kind: Replicas
 metadata:
-  name: nginx-replicas
+  name: nginx-rs
   namespace: dev
   labels:
     app: nginx-app
-
 spec:
   replicas: 3
   selector:
-    matchLabels:
+    matchLabesl:
       app: nginx-app
   template:
     metadata:
       labels:
         app: nginx-app
-
-    spec:
+    spec:    
       containers:
       - name: nginx-container
         image: nginx
@@ -42,31 +43,36 @@ spec:
 ---
 apiVersion: apps/v1
 kind: Deployment
-
 metadata:
   name: nginx-deployment
   namespace: dev
   labels:
     app: nginx-app
-
 spec:
   replicas: 3
   selector:
-    matchLabels:
+    matchLabesl:
       app: nginx-app
   template:
     metadata:
       labels:
         app: nginx-app
-    spec:
+    spec:   
       containers:
       - name: nginx-container
         image: nginx
         ports:
         - containerPort: 80
 
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
         startupProbe:
-          httpGet:
+          httGet:
             path: /
             port: 80
           failureThreshold: 30
@@ -74,30 +80,22 @@ spec:
         livenessProbe:
           httpGet:
             path: /
-            port: 80   
+            port: 80
           initialDelaySeconds: 10
           periodSeconds: 5
-        readinessProbe: 
+        readinessProbe:
           httpGet:
             path: /
             port: 80
           initialDelaySeconds: 10
           periodSeconds: 5
-
-        resources:
-          requests:
-            cpu: "100m" 
-            memory: "128Mi"
-          limits:
-            cpu: "500m"
-            memory: "512Mi"
         env:
-        - name: APP_USERNAME
+        - name: ADB_USERNAME
           valueFrom:
             secretKeyRef:
               name: nginx-secret
               key: username
-        - name: APP_PASSWORD
+        - name: ADB_UPASSWORD
           valueFrom:
             secretKeyRef:
               name: nginx-secret
@@ -113,80 +111,51 @@ spec:
         configMap:
           name: nginx-configmap
       - name: nginx-storage
-        persistentVolumeClaim:
-          claimName: nginx-pvc            
-
----
-apiVersion: v1
-kind: Namespace
-
-metadata: 
-  name: dev
-  labels:
-    app: nginx-app
+        persisitentVolumeClaim:
+          ClaimName: nginx-pvc
 ---
 apiVersion: v1
 kind: ConfigMap
-
-metadata:
+metdata:
   name: nginx-configmap
   namespace: dev
-  labels:
+  labesl:
     app: nginx-app
 data:
-   index.html: |
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Nginx on Kubernetes</title>
-    </head>
-    <body>
-      <h1>Hello from Nginx in Kubernetes 🚀</h1>
-      <p>Namespace: dev</p>
-      <p>Served using ConfigMap + Deployment + Service + Ingress</p>
-    </body>
-    </html>
+  htmls
 ---
 apiVersion: v1
 kind: Secret
-
-metadata:
+metdata:
   name: nginx-secret
   namespace: dev
-  labels:
+  labesl:
     app: nginx-app
-type: Opaque
 data:
-  username: YWRtaW4=
-  password: cGFzc3dvcmQxMjM=    
-
+  username:
+  password:
 ---
 apiVersion: v1
 kind: Service
-
-metadata:
+metdata:
   name: nginx-service
   namespace: dev
-  labels:
+  labesl:
     app: nginx-app
-
-spec:
+spce:
   type: ClusterIP
   selector:
-    app: nginx-app
-
+    app: nginx-pp
   ports:
   - port: 80
     targetPort: 80
-
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
-
-metadata:
+metdata:
   name: nginx-ingress
   namespace: dev
-  labels:
+  labesl:
     app: nginx-app
 spec:
   rules:
@@ -200,40 +169,52 @@ spec:
             name: nginx-service
             port:
               number: 80
-
 ---
 apiVersion: v1
-kind: PersistentVolumeClaim
-
-metadata:
+kind: persistentVolume
+metdata:
+  name: nginx-pv
+  namespace: dev
+  labesl:
+    app: nginx-app
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+  - ReadWriteOnce
+  persistenetVolumeReclaimPolicy: Retain
+  storageClassName: manual
+  hostPath:
+  - path: mnt/data/nginx
+---
+apiVersion: v1
+kind: persistentVolumeClaim
+metdata:
   name: nginx-pvc
   namespace: dev
-  labels:
-    app: nginx-app
-
+  labesl:
+    app: nginx-app 
 spec:
   accessModes:
   - ReadWriteOnce
+  storageClassName: manual
   resources:
     requests:
-      storage: 1Gi
-  storageClassName: manual
+      storage: 1Gi   
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
-
-metadata:
+metdata:
   name: nginx-hpa
   namespace: dev
-  labels:
+  labesl:
     app: nginx-app
-
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
     name: nginx-deployment
-  minReplicas: 1
+  minReplicas: 2
   maxReplicas: 5
   metrics:
   - type: Resource
@@ -241,42 +222,60 @@ spec:
       name: cpu
       target:
         type: Utilization
-        averageUtilization: 50
+        averageUtilization: 80
 ---
-apiVersion: v1
-kind: PersistentVolume
-
+apiVersion: apps/v1
+kind: StatefulSet
+metadta:
+  name: nginx-statefulset
+spec:
+  serviceName: nginx-service
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx-app
+  template:
+    metadata:
+      labels:
+        app: nginx-app
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx
+---
+apiVersion: apps/v1
+kind: DaemonSet
 metadata:
-  name: nginx-pv
-  labels:
-    app: nginx-app
+  name: nginx-daemonset
+
 spec:
-  capacity:
-    storage: 1Gi
-  accessModes:
-  - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
-  storageClassName: manual
-  hostPath:
-    path: /mnt/data/nginx
----    
+  selector:
+    matchLabels:
+      app: nginx-app
+  template:
+    metadata:
+      labels:
+        app: nginx-app
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx-app
+---
+apiVersion: batch/v1
+kind: Job
+metadata: 
+  name: nginx-job
 spec:
-  capacity:
-    storage: 1Gi
-  accessModes:
-  - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
-  storageClassName: manual
-  hostPath:
-    path: /mnt/data/nginx  
+  template:
+    spec:
+      containers:
+      - name: job
+        image: busybox
+        commnad: ["echo","hello Job"]
+      restartPolicy: Never
+---      
 
 
 
 
 
-
-
-
-
-
-                  

@@ -1,0 +1,36 @@
+---
+
+Pod Affinity:-Place pod near another pod.
+Web Pod
+    ↓
+Database Pod
+
+---
+spec:
+  template:
+    spec:
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - database
+            topologyKey: kubernetes.io/hostname
+---
+Pod Anti-Affinity:-Keep pods apart.
+
+---
+#Deploymnet
+spec:
+  template:
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app: nginx
+            topologyKey: kubernetes.io/hostname

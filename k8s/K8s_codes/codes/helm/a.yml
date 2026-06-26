@@ -1,0 +1,41 @@
+---
+apiVersion: v2
+name: ngin-chart
+description: Nginx-Helm-Chart
+type: applicatio
+verion: 1.0.0
+appVersion: "1.25"
+
+---
+replicaCount: 3
+image: 
+  repository: nginx
+  tag: latest
+service:
+  type: ClusterIP
+  port: 80
+ingress:
+  enabled: true
+  host: myapp.local
+configmap:
+  enabled: true
+secret:
+  enabled: true
+pvc:
+  enabled: true
+  size: 1Gi
+hpa:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  cpu: 90
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespcae: dev
+  labels:
+    app: nginx-app
+spec:
+  replicas: {{ . Values.}}  

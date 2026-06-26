@@ -1,0 +1,78 @@
+Docker Volume:-A Docker Volume is used to persist data even after a container is deleted.
+Stored outside container
+Managed by Docker
+Why use Volume:- Because containers are temporary (ephemeral)
+Volumes provide:-Data persistence if container deleted
+
+
+Types of Storage
+1. Named Volume
+2. Bind Mount (Local Volume)
+3. Anonymous Volume
+
+----
+
+docker volume create myvolume      # Create volume
+
+docker volume ls                   # List volumes
+
+docker volume inspect myvolume     # Inspect volume
+
+docker volume rm myvolume          # Remove volume
+
+docker volume prune                # Remove unused volumes
+
+docker run -v myvolume:/data nginx # Mount named volume
+
+docker run -v /host:/data nginx    # Bind mount
+
+docker run -v /data nginx          # Anonymous volume
+----
+
+
+# 6. Use Named Volume
+
+docker run -d \
+--name nginx-c1 \
+-v my-volume:/usr/share/nginx/html \
+nginx
+
+-----
+# 7. Use Local Folder (Bind Mount)
+
+docker run -d \
+--name nginx-c1 \
+-v $(pwd)/html:/usr/share/nginx/html \
+nginx
+
+or
+
+docker run -d \
+-v /home/ubuntu/html:/usr/share/nginx/html \
+nginx
+---------------
+docker volume create mysql-data
+
+docker run -d \
+--name mysql-c1 \
+-v mysql-data:/var/lib/mysql \
+-e MYSQL_ROOT_PASSWORD=password123 \
+mysql:8
+
+-----------------
+docker volume create mongo-data
+
+docker run -d \
+--name mongo-c1 \
+-v mongo-data:/data/db \
+mongo
+
+------------------
+docker volume create jenkins-home
+
+docker run -d \
+--name jenkins-c1 \
+-v jenkins-home:/var/jenkins_home \
+-p 8080:8080 \
+-p 50000:50000 \
+jenkins/jenkins:lts

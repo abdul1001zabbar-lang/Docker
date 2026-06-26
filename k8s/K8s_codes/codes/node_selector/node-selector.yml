@@ -1,0 +1,88 @@
+---
+#NodeSelector:-
+#Pod runs only on nodes having a specific label.
+# NodeSelector = "pod ko us tag wale node pe bhejna"
+#if replicas is 3 then in worker1 will run all 3 pods with same label
+#if no lables then pod will not run
+
+
+kubectl label node worker1 env=dev
+kubectl label node worker2 env=test
+kubectl label node worker3 env=prod
+kubectl label node worker2 env=dev
+kubectl label node worker3 region=hyderabad
+kubectl label node worker1 disktype=ssd
+kubectl label node worker2 disktype=hdd
+kubectl label node worker1 cpu=high
+kubectl label node worker2 cpu=medium
+kubectl label node worker3 cpu=low
+kubectl label node worker1 memory=32gb
+kubectl label node worker1 gpu=true
+kubectl label node worker1 role=database
+kubectl label node worker1 purpose=monitoring
+
+---
+env=dev
+env=test
+env=prod
+
+disktype=ssd
+
+nodepool=system
+nodepool=user
+
+purpose=monitoring
+purpose=cicd
+
+# Define on node ✅
+kubectl label nodes worker1 env=prod
+kubectl taint nodes worker1 dedicated=prod:NoSchedule
+
+# Use in Pod ✅
+nodeAffinity → env=prod  
+toleration   → dedicated=prod  
+
+
+# Node env=prod  ✓
+# Node env=dev   ✗
+---
+#Deployment
+---
+spec:
+  template:
+    spec:
+      nodeSelector:
+        env: prod
+        region: mumbai
+        disktype: ssd
+        cpu: high
+        memory: 32gb
+        gpu: "true"
+        role: database
+        purpose: monitoring
+---
+nodeSelector:
+  env: prod
+---
+nodeSelector:
+  region: mumbai
+---
+nodeSelector:
+  disktype: ssd
+---
+nodeSelector:
+  cpu: high
+---
+nodeSelector:
+  memory: 32gb
+---
+nodeSelector:
+  gpu: "true"
+---
+nodeSelector:
+  role: database
+---
+nodeSelector:
+  purpose: monitoring   
+---
+

@@ -1,0 +1,70 @@
+#Pod Affinity:-Place pod near another pod.
+Ex:-
+1. Web Pod/Database Pod
+2. frontend Pod/backend Pod
+
+---
+spec:
+  affinity:
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: app
+            operator: In
+            values:
+            - backend
+        topologyKey: kubernetes.io/hostname
+---
+# Schedule this pod on same node  where app=backend pod exists        
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pod-affinity-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - backend
+            topologyKey: kubernetes.io/hostname
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: nginx-backend
+        image: nginx:latest
+        ports:
+        - containerPort: 80        

@@ -1,0 +1,135 @@
+# Node Affinity:-This ensures pods run only on nodes where label env=prod.
+# NodeAffinity = choose the node
+# Schedule pod only on nodes having label env=prod
+# requiredDuringSchedulingIgnoredDuringExecution ✅ → must match
+# nodeSelectorTerms ✅ → OR level
+# matchExpressions ✅ → AND inside
+
+# env=prod
+# env=dev
+# disktype=ssd
+# gpu=true
+# purpose=monitoring
+# purpose=cicd
+# nodepool=system
+# nodepool=user
+
+# NodeSelector = basic filter -- not able to do and or flters 
+# 👉 NodeAffinity = smart filter (SQL query type)
+
+#Operators:-
+# In              → Match values
+# NotIn           → Exclude values
+# Exists          → Label must exist
+# DoesNotExist    → Label must not exist
+# Gt              → Greater than
+# Lt              → Less than
+---
+#Deployment
+spec:
+  template:
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:  #OR
+            - matchExpressions:  #AND
+              - key: env
+                operator: In
+                values:
+                - prod
+--- 
+spec:
+  template:
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+
+            # ✅ Condition 1 (AND inside)
+            - matchExpressions:
+              - key: env
+                operator: In
+                values:
+                - prod
+              - key: region
+                operator: In
+                values:
+                - mumbai
+
+            # ✅ OR condition (second block)
+            - matchExpressions:
+              - key: env
+                operator: In
+                values:
+                - dev               
+---
+- key: disktype
+  operator: In
+  values:
+  - ssd
+---
+- key: purpose
+  operator: In
+  values:
+  - monitoring
+---
+- key: purpose
+  operator: In
+  values:
+  - cicd
+---
+-key: role
+  operator: In
+  values:
+  - database 
+---
+- key: nodepool
+  operator: In
+  values:
+  - system       
+---
+- key: env
+  operator: In
+  values:
+  - prod
+  - dev
+---
+- key: nodepool
+  operator: In
+  values:
+  - user
+---
+
+---
+- key: env
+  operator: NotIn
+  values:
+  - dev
+---
+- key: gpu
+  operator: Exists
+---
+- key: maintenance
+  operator: DoesNotExist
+---
+#Gt (Greater Than)
+- key: cpu
+  operator: Gt
+  values:
+  - "4"
+
+#worker1 ✅
+#worker2 ❌
+---
+#Lt (Less Than)
+- key: cpu
+  operator: Lt
+  values:
+  - "8"
+
+#worker1 ✅
+#worker2 ❌  
+---    
+

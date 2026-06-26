@@ -387,18 +387,19 @@ roleRef:
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-
+kind: RoleBinding
 metadata:
-  name: pod-reader
+  name: pod-reader-binding
+  namespace: dev
 
-rules:
-- apiGroups: [""]
-  resources: ["pods"]
-  verbs:
-  - get
-  - list
-  - watch
+subjects:
+  kind: ServiceAccount
+  name: dev-sa
+
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: pod-reader
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -417,6 +418,7 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 ---
 kubectl taint nodes controlplane app=dev:NoSchedule
+
 ---
 apiVersion: v1
 kind: Pod
@@ -582,189 +584,3 @@ spec:
         image: nginx:latest
         ports:
         - containerPort: 80        
----
-========================Helm=================================
----
-apiVersion: v2
-name: nginx-chart
-description: Dynamic nginx Helm chart
-type: application
-version: 0.1.0
-appVersion: "1.25"
-
-
----
-replicaCount: 2
-
-image:
-  repository: nginx
-  tag: latest
-
-service:
-  type: NodePort
-  port: 80
-
-ingress:
-
-  enabled: true
-  host: nginx.local
-
-configmap:
-  enabled: true
-
-secret:
-  enabled: true
-
-pvc:
-  enabled: true
-  size: 1Gi
-
-hpa:
-  enabled: true
-  minReplicas: 2
-  maxReplicas: 5
-  cpu: 50
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: {{ .Release.Name }}
-spec:
-  replicas: {{ .Values.replicaCount }}
-  selector:
-    matchLabels:
-      app: nginx
-  template:
-    metadata:
-      labels:
-        app: nginx
-    spec:
-      containers:
-      - name: nginx
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        ports:
-        - containerPort: 80
-
-        # ✅ Probes
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 80
-          initialDelaySeconds: 5
-          periodSeconds: 10
-
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 80
-          initialDelaySeconds: 3
-          periodSeconds: 5
-
-        # ✅ ConfigMap
-        envFrom:
-        - configMapRef:
-            name: {{ .Release.Name }}-config
-
-        # ✅ Secret
-        - secretRef:
-            name: {{ .Release.Name }}-secret
-
-        # ✅ PVC Mount
-        volumeMounts:
-        - mountPath: /usr/share/nginx/html
-          name: storage
-
-      volumes:
-      - name: storage
-        persistentVolumeClaim:
-          claimName: {{ .Release.Name }}-pvc
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ .Release.Name }}
-spec:
-  type: {{ .Values.service.type }}
-  selector:
-    app: nginx
-  ports:
-  - port: {{ .Values.service.port }}
-    targetPort: 80
-
----
-{{- if .Values.ingress.enabled }}
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: {{ .Release.Name }}
-spec:
-  rules:
-  - host: {{ .Values.ingress.host }}
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: {{ .Release.Name }}
-            port:
-              number: 80
-{{- end }}
-
----
-{{- if .Values.configmap.enabled }}
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{ .Release.Name }}-config
-data:
-  APP_ENV: prod
-{{- end }}
----
-{{- if .Values.secret.enabled }}
-apiVersion: v1
-kind: Secret
-metadata:
-  name: {{ .Release.Name }}-secret
-type: Opaque
-data:
-  username: dXNlcg==
-  password: cGFzcw==
-{{- end }}
----
-{{- if .Values.pvc.enabled }}
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: {{ .Release.Name }}-pvc
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: {{ .Values.pvc.size }}
-{{- end }}
----
-{{- if .Values.hpa.enabled }}
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: {{ .Release.Name }}
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: {{ .Release.Name }}
-  minReplicas: {{ .Values.hpa.minReplicas }}
-  maxReplicas: {{ .Values.hpa.maxReplicas }}
-  metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: {{ .Values.hpa.cpu }}
-{{- end }}
----
-

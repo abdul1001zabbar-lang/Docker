@@ -1,0 +1,28 @@
+1. Terraform Basics
+2. Providers
+3. Resources
+4. Variables
+5. Outputs
+6. State File
+7. Dependencies
+8. Data Sources
+9. Locals
+10. Functions
+11. Conditional Expressions
+12. Loops (count, for_each)
+13. Dynamic Blocks
+14. Provisioners
+15. Lifecycle Rules
+16. Workspaces
+17. Remote Backend
+18. Modules
+19. Terraform Cloud
+20. Terraform Best Practices
+
+
+terraform init
+terraform fmt
+terraform validate
+terraform plan
+terraform apply
+terraform destroy
